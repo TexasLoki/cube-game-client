@@ -109,6 +109,12 @@ public class Camera {
 		
 		if(rotation.z >= 360.0f || rotation.z <= -360.0f)
 			rotation.z = rotation.z % 360.0f;
+		
+		// Gimbal lock
+		if(rotation.x <= -90.0f)
+			rotation.x = -90.0f;
+		else if(rotation.x >= 90.0f)
+			rotation.x = 90.0f;
 	}
 	
 	public void applyMatrix() {

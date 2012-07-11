@@ -18,6 +18,7 @@ public class Game {
 	private static final float MOVEMENT_SPEED = 5.0f;
 	private static final float FALSE_GRAVITY_SPEED = 8.0f;
 	private static final boolean FULLSCREEN = false;
+	private static final boolean VSYNC = false;
 	
 	// Game components
 	private Camera camera;
@@ -38,6 +39,7 @@ public class Game {
 		try {
 			Display.setDisplayMode(Display.getDesktopDisplayMode());
 			Display.setFullscreen(FULLSCREEN);
+			Display.setVSyncEnabled(VSYNC);
 			Display.create();
 		} catch(LWJGLException e) {
 			e.printStackTrace();
@@ -187,6 +189,8 @@ public class Game {
 				camera.move(MOVEMENT_SPEED * deltaTime, Camera.RIGHT, 0, doCollisionChecking, flyMode);
 			if(Keyboard.isKeyDown(Keyboard.KEY_SPACE))
 				camera.move(0, Camera.RIGHT, -FALSE_GRAVITY_SPEED * 2 * deltaTime, doCollisionChecking, flyMode);
+			if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+				camera.move(0, Camera.RIGHT, FALSE_GRAVITY_SPEED * 2 * deltaTime, doCollisionChecking, flyMode);
 			
 			if(Keyboard.isKeyDown(Keyboard.KEY_UP)) {
 				movingCube.pos1.y += deltaTime * 20.0f;
