@@ -16,7 +16,8 @@ public class Skybox extends Cube {
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getTextureID());
 		} else {
 			// Set the color
-			// GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+			GL11.glColorMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE);
+			GL11.glEnable(GL11.GL_COLOR_MATERIAL);
 			GL11.glColor4f(color.x, color.y, color.z, color.a);
 		}
 		

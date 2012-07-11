@@ -29,6 +29,9 @@ public class CubeTerrain {
 	private Texture waterTexture;
 	private Texture dirtTexture;
 	
+	// Display list
+	private int displayList;
+	
 	public CubeTerrain(Vector3 arraySize, Vector3f cubeSize, Vector3f translation) {
 		this.arraySize = arraySize;
 		this.cubeSize = cubeSize;
@@ -144,6 +147,20 @@ public class CubeTerrain {
 				}
 			}
 		}
+		
+		// Create the display list
+		displayList = GL11.glGenLists(1);
+		GL11.glNewList(displayList, GL11.GL_COMPILE);
+		
+		for(int z = 0; z < arraySize.z; z++) {
+			for(int x = 0; x < arraySize.x; x++) {
+				for(int y = heightData[x][z]; y >= 0; y--) {
+					terrain[x][y][z].render();
+				}
+			}
+		}
+		
+		GL11.glEndList();
 	}
 	
 	private Cube createCube(Vector3 arrayPosition) {
@@ -183,15 +200,8 @@ public class CubeTerrain {
 		// Add the translation matrix
 		GL11.glTranslatef(translation.x, translation.y, translation.z);
 		
-		// Draw each cube
-		for(int z = 0; z < arraySize.z; z++) {
-			for(int y = 0; y < arraySize.y; y++) {
-				for(int x = 0; x < arraySize.x; x++) {
-					if(terrain[x][y][z] != null)
-						terrain[x][y][z].render();
-				}
-			}
-		}
+		// Call the display list
+		GL11.glCallList(displayList);
 		
 		// Restore the matrix
 		GL11.glPopMatrix();
@@ -234,6 +244,10 @@ public class CubeTerrain {
 		}
 		
 		return false;
+	}
+	
+	public void release() {
+		GL11.glDeleteLists(displayList, 1);
 	}
 }
 

@@ -17,8 +17,8 @@ public class Game {
 	private static final float MOUSE_SPEED_SCALE = 0.1f;
 	private static final float MOVEMENT_SPEED = 5.0f;
 	private static final float FALSE_GRAVITY_SPEED = 8.0f;
-	private static final boolean FULLSCREEN = false;
-	private static final boolean VSYNC = false;
+	private static final boolean FULLSCREEN = true;
+	private static final boolean VSYNC = true;
 	
 	// Game components
 	private Camera camera;
@@ -97,7 +97,7 @@ public class Game {
 			e.printStackTrace();
 			System.exit(0);
 		}
-	
+
 		// Create the terrain
 		terrain = new CubeTerrain(new Vector3(50, 25, 50), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(-25.0f, -40.0f, -25.0f));
 		
@@ -137,24 +137,6 @@ public class Game {
 
 			// Apply the camera matrix
 			camera.applyMatrix();
-			
-			// Render some rectangles
-			GL11.glColor3f(0.5f, 0.5f, 1.0f);
-			
-			GL11.glBegin(GL11.GL_QUADS);
-				GL11.glVertex3f(2.0f, 4.0f, -5.0f);
-				GL11.glVertex3f(-2.0f, 4.0f, -5.0f);
-				GL11.glVertex3f(-2.0f, 0.0f, -5.0f);
-				GL11.glVertex3f(2.0f, 0.0f, -5.0f);
-			GL11.glEnd();
-
-			GL11.glColor3f(0.9f, 0.5f, 1.0f);
-			GL11.glBegin(GL11.GL_QUADS);
-				GL11.glVertex3f(5.0f, 0.0f, -5.0f);
-				GL11.glVertex3f(-5.0f, 0.0f, -5.0f);
-				GL11.glVertex3f(-5.0f, 0.0f, 5.0f);
-				GL11.glVertex3f(5.0f, 0.0f, 5.0f);
-			GL11.glEnd();
 			
 			// Render the terrain
 			terrain.render();
@@ -203,21 +185,14 @@ public class Game {
 			
 			// Check for pressed keys
 			while (Keyboard.next()) {
-				if (Keyboard.getEventKey() == Keyboard.KEY_F) {
-				    if (Keyboard.getEventKeyState()) { 
-				    	flyMode = !flyMode;
-				    	System.out.println("Fly mode toggled");
-				    }   
-				} else if (Keyboard.getEventKey() == Keyboard.KEY_C) {
-				    if (Keyboard.getEventKeyState()) { 
-				    	doCollisionChecking = !doCollisionChecking;
-				    	System.out.println("Collision checking toggled");
-				    }   
-				} else if (Keyboard.getEventKey() == Keyboard.KEY_B) {
-				    if (Keyboard.getEventKeyState()) { 
-				    	renderSkybox = !renderSkybox;
-				    	System.out.println("Skybox toggled");
-				    }   
+				if (Keyboard.getEventKeyState()) {
+					if (Keyboard.getEventKey() == Keyboard.KEY_F) {
+					    	flyMode = !flyMode;
+					} else if (Keyboard.getEventKey() == Keyboard.KEY_C) {
+					    	doCollisionChecking = !doCollisionChecking;
+					} else if (Keyboard.getEventKey() == Keyboard.KEY_B) {
+					    	renderSkybox = !renderSkybox;
+					}
 				}
 			}
 			
@@ -234,6 +209,7 @@ public class Game {
 			movingCube.pos2.y = movingCube.pos1.y + 10.0f;
 			movingCube.pos2.z = movingCube.pos1.z + 10.0f;
 			
+			// Make the moving cube stay within bounds
 			if(movingCube.pos1.z <= -40.0f) {
 				movingCubeVel = new Vector3f(0.0f, 0.0f, 20.0f);
 			} else if(movingCube.pos2.z >= 40.0f) {
@@ -244,6 +220,7 @@ public class Game {
 		}
 		
 		// Cleanup
+		terrain.release();
 		Display.destroy();
 	}
 
