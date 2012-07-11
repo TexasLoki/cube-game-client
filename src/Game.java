@@ -44,6 +44,8 @@ public class Game {
 			System.exit(0);
 		}
 		
+		//hej
+		
 		int width = Display.getDesktopDisplayMode().getWidth();
 		int height = Display.getDesktopDisplayMode().getHeight();
 		
