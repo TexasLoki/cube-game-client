@@ -101,13 +101,13 @@ public class Camera {
 		rotation.y += rot.y;
 		rotation.z += rot.z;
 		
-		if(rotation.x >= 360.0f)
+		if(rotation.x >= 360.0f || rotation.x <= -360.0f)
 			rotation.x = rotation.x % 360.0f;
 		
-		if(rotation.y >= 360.0f)
+		if(rotation.y >= 360.0f || rotation.y <= -360.0f)
 			rotation.y = rotation.y % 360.0f;
 		
-		if(rotation.z >= 360.0f)
+		if(rotation.z >= 360.0f || rotation.z <= -360.0f)
 			rotation.z = rotation.z % 360.0f;
 	}
 	
