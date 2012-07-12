@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileInputStream;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
@@ -34,6 +36,9 @@ public class Game {
 	private Cube movingCube;
 	private Vector3f movingCubeVel = new Vector3f(0.0f, 0.0f, 20.0f);
 	
+	// OBJ model test
+	private OBJModel objModelTest;
+	
 	public void start() {
 		// Create the display
 		try {
@@ -45,8 +50,6 @@ public class Game {
 			e.printStackTrace();
 			System.exit(0);
 		}
-		
-		//hej
 		
 		int width = Display.getDesktopDisplayMode().getWidth();
 		int height = Display.getDesktopDisplayMode().getHeight();
@@ -122,6 +125,16 @@ public class Game {
 		// Create the moving cube
 		movingCube = new Cube(new Vector3f(-5.0f, 30.0f, -5.0f), new Vector3f(5.0f, 40.0f, 5.0f), null, trollfaceTexture);
 		
+		// Load the OBJ model
+		objModelTest = new OBJModel();
+		
+		try {
+			objModelTest.loadModel(new FileInputStream(new File("res/ladybird_q.obj")));
+		} catch(Exception e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+			
 		// Main loop
 		long lastFrame = System.currentTimeMillis();
 		
@@ -147,6 +160,19 @@ public class Game {
 			
 			// Render the moving cube
 			movingCube.render();
+			
+			// Render the OBJ model
+			GL11.glPushMatrix();
+			GL11.glColorMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE);
+			GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+			
+			GL11.glColor3f(1.0f, 0.0f, 0.0f);
+
+			objModelTest.render(new Vector3f(0.0f, -30.0f, 0.0f), new Vector3f(0.0f, 45.0f, 0.0f), new Vector3f(0.01f, 0.01f, 0.01f));
+			
+			GL11.glColor3f(1.0f, 1.0f, 1.0f);
+			GL11.glDisable(GL11.GL_COLOR_MATERIAL);
+			GL11.glPopMatrix();
 			
 			// Set title to debug info
 			Display.setTitle("x: " + camera.coordinates.x + " y: " + camera.coordinates.y + " z: " + camera.coordinates.z +
