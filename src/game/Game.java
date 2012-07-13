@@ -17,6 +17,7 @@ public class Game {
 	
 	private static final float MOUSE_SPEED_SCALE = 0.1f;
 	private static final float MOVEMENT_SPEED = 5.0f;
+	private static final float MOVEMENT_SPEED_FLYMODE = 10.0f;
 	private static final float FALSE_GRAVITY_SPEED = 8.0f;
 	private static final boolean FULLSCREEN = true;
 	private static final boolean VSYNC = true;
@@ -173,17 +174,19 @@ public class Game {
 			// Handle mouse movement
 			camera.addRotation(new Vector3f(Mouse.getDY() * MOUSE_SPEED_SCALE, -Mouse.getDX() * MOUSE_SPEED_SCALE, 0.0f));
 			
+			float movementSpeed = flyMode ? MOVEMENT_SPEED_FLYMODE : MOVEMENT_SPEED;
+			
 			// Handle keypresses
 			if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
 				break;
 			if(Keyboard.isKeyDown(Keyboard.KEY_W))
-				camera.move(MOVEMENT_SPEED * deltaTime, Camera.FORWARD, 0, doCollisionChecking, flyMode);
+				camera.move(movementSpeed * deltaTime, Camera.FORWARD, 0, doCollisionChecking, flyMode);
 			if(Keyboard.isKeyDown(Keyboard.KEY_S))
-				camera.move(MOVEMENT_SPEED * deltaTime, Camera.BACKWARD, 0, doCollisionChecking, flyMode);
+				camera.move(movementSpeed * deltaTime, Camera.BACKWARD, 0, doCollisionChecking, flyMode);
 			if(Keyboard.isKeyDown(Keyboard.KEY_A))
-				camera.move(MOVEMENT_SPEED * deltaTime, Camera.LEFT, 0, doCollisionChecking, flyMode);
+				camera.move(movementSpeed * deltaTime, Camera.LEFT, 0, doCollisionChecking, flyMode);
 			if(Keyboard.isKeyDown(Keyboard.KEY_D))
-				camera.move(MOVEMENT_SPEED * deltaTime, Camera.RIGHT, 0, doCollisionChecking, flyMode);
+				camera.move(movementSpeed * deltaTime, Camera.RIGHT, 0, doCollisionChecking, flyMode);
 			if(Keyboard.isKeyDown(Keyboard.KEY_SPACE))
 				camera.move(0, Camera.RIGHT, -FALSE_GRAVITY_SPEED * 2 * deltaTime, doCollisionChecking, flyMode);
 			if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
