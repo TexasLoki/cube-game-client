@@ -1,4 +1,8 @@
 package game;
+import java.util.Random;
+
+import obstacle.TreeObstacle;
+
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 
@@ -118,6 +122,23 @@ public class CubeTerrain {
 			}
 		}
 		
+		Random rand = new Random();
+		
+		// Create tree obstacles
+		TreeObstacle treeGen = new TreeObstacle(this, textureStore);
+		int treeCount = 5;
+		
+		for(int treeIndex = 0; treeIndex < treeCount; treeIndex++) {
+			// Select a random position on the terrain
+			int x = rand.nextInt(arraySize.x);
+			int z = rand.nextInt(arraySize.z);
+			int y = heightData[x][z];
+			
+			// Create the tree
+			treeGen.createTree();
+			treeGen.placeObstacle(new Vector3(x, y, z), false);
+		}
+		
 		// Calculate which sides each cube needs to render
 		for(int z = 0; z < arraySize.z; z++) {
 			for(int x = 0; x < arraySize.x; x++) {
@@ -140,8 +161,9 @@ public class CubeTerrain {
 		
 		for(int z = 0; z < arraySize.z; z++) {
 			for(int x = 0; x < arraySize.x; x++) {
-				for(int y = heightData[x][z]; y >= 0; y--) {
-					terrain[x][y][z].render();
+				for(int y = 0; y < arraySize.y; y++) {
+					if(terrain[x][y][z] != null)
+						terrain[x][y][z].render();
 				}
 			}
 		}
