@@ -1,3 +1,4 @@
+package game;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.FloatBuffer;
@@ -10,8 +11,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 import org.newdawn.slick.opengl.Texture;
-import org.newdawn.slick.opengl.TextureLoader;
-import org.newdawn.slick.util.ResourceLoader;
 
 
 public class Game {
@@ -26,6 +25,7 @@ public class Game {
 	private Camera camera;
 	private CubeTerrain terrain;
 	private Skybox skybox;
+	private TextureStore textureStore;
 	
 	// Toggles
 	private boolean flyMode = true;
@@ -84,25 +84,14 @@ public class Game {
 		
 		// Hide the mouse
 		Mouse.setGrabbed(true);
-				
-		Texture skyboxTexture = null;
-		Texture trollfaceTexture = null;
 		
-		// Load textures
-		try {
-			skyboxTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/skybox.png"));
-			trollfaceTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/troll.png"));
-			
-			// Create mipmaps
-			CubeTerrain.createMipmaps(skyboxTexture);
-			CubeTerrain.createMipmaps(trollfaceTexture);
-		} catch(Exception e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
-
+		textureStore = new TextureStore();
+		
+		Texture skyboxTexture = textureStore.getTexture("res/skybox.png");
+		Texture trollfaceTexture = textureStore.getTexture("res/troll.png");
+		
 		// Create the terrain
-		terrain = new CubeTerrain(new Vector3(50, 25, 50), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(-25.0f, -40.0f, -25.0f));
+		terrain = new CubeTerrain(new Vector3(50, 25, 50), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(-25.0f, -40.0f, -25.0f), textureStore);
 		
 		final int TERRAIN_MAX_HEIGHT = 20;
 		final int TERRAIN_MIN_HEIGHT = 3;

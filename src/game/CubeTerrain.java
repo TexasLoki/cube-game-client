@@ -1,27 +1,21 @@
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
+package game;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.glu.MipMap;
 import org.newdawn.slick.opengl.Texture;
-import org.newdawn.slick.opengl.TextureLoader;
-import org.newdawn.slick.util.ResourceLoader;
 
 
 public class CubeTerrain {
 
 	// Size of the terrain measured in cubes
-	private Vector3 arraySize;
+	public Vector3 arraySize;
 	
 	// Size of each cube
-	private Vector3f cubeSize;
+	public Vector3f cubeSize;
 	
 	// Optional translation
 	private Vector3f translation;
 	
 	// The 3d array containing the cubes
-	private Cube[][][] terrain;
+	public Cube[][][] terrain;
 	
 	// Textures
 	private Texture stoneTexture;
@@ -32,10 +26,13 @@ public class CubeTerrain {
 	// Display list
 	private int displayList;
 	
-	public CubeTerrain(Vector3 arraySize, Vector3f cubeSize, Vector3f translation) {
+	private TextureStore textureStore;
+	
+	public CubeTerrain(Vector3 arraySize, Vector3f cubeSize, Vector3f translation, TextureStore textureStore) {
 		this.arraySize = arraySize;
 		this.cubeSize = cubeSize;
 		this.translation = translation;
+		this.textureStore = textureStore;
 		
 		// Create the cube array
 		terrain = new Cube[arraySize.x][arraySize.y][arraySize.z];
@@ -48,21 +45,10 @@ public class CubeTerrain {
 			}
 		}
 		
-		try {
-			// Load textures
-			stoneTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/stone.png"));
-			grassTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/grass.png"));
-			waterTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/water.png"));
-			dirtTexture = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/dirt.png"));
-			
-			// Create mipmaps
-			createMipmaps(stoneTexture);
-			createMipmaps(grassTexture);
-			createMipmaps(waterTexture);
-			createMipmaps(dirtTexture);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		stoneTexture = textureStore.getTexture("res/stone.png");
+		grassTexture = textureStore.getTexture("res/grass.png");
+		waterTexture = textureStore.getTexture("res/water.png");
+		dirtTexture = textureStore.getTexture("res/dirt.png");
 	}
 	
 	public void generateTerrain(int maxHeight, int minHeight, int smoothLevel, int seed, float noiseSize, float persistence, int octaves) {
@@ -205,27 +191,6 @@ public class CubeTerrain {
 		
 		// Restore the matrix
 		GL11.glPopMatrix();
-	}
-	
-	/* Function which generates mipmaps. Found on the internet. */
-	public static void createMipmaps(Texture tex) {
-		tex.bind();
-
-		int width = (int)tex.getImageWidth();
-		int height = (int)tex.getImageHeight();
-
-		byte[] texbytes = tex.getTextureData();
-		int components = texbytes.length / (width*height);
-
-		ByteBuffer texdata = ByteBuffer.allocateDirect(texbytes.length);
-		texdata.put(texbytes);
-		texdata.rewind();
-
-		MipMap.gluBuild2DMipmaps(GL11.GL_TEXTURE_2D, components, width, height, components==3 ? GL11.GL_RGB : GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE,texdata);
-
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, 8);
 	}
 	
 	/* Returns true if there is a solid cube at the given coordinates. */
