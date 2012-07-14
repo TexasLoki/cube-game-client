@@ -1,6 +1,7 @@
 package game;
 import java.util.Random;
 
+import obstacle.SpruceObstacle;
 import obstacle.TreeObstacle;
 
 import org.lwjgl.opengl.GL11;
@@ -137,6 +138,21 @@ public class CubeTerrain {
 			// Create the tree
 			treeGen.createTree(textures);
 			treeGen.placeObstacle(new Vector3(x, y, z), false);
+		}
+		
+		// Create spruce obstacles
+		SpruceObstacle spruceGen = new SpruceObstacle(this, textureStore);
+		int spruceCount = 5;
+		
+		for(int spruceIndex = 0; spruceIndex < spruceCount; spruceIndex++) {
+			// Select a random position on the terrain
+			int x = rand.nextInt(arraySize.x);
+			int z = rand.nextInt(arraySize.z);
+			int y = heightData[x][z];
+			
+			// Create the spruce
+			spruceGen.createSpruce(textures);
+			spruceGen.placeObstacle(new Vector3(x, y, z), false);
 		}
 		
 		// Calculate which sides each cube needs to render
