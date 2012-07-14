@@ -55,7 +55,7 @@ public class CubeTerrain {
 		dirtTexture = textureStore.getTexture("res/dirt.png");
 	}
 	
-	public void generateTerrain(int maxHeight, int minHeight, int smoothLevel, int seed, float noiseSize, float persistence, int octaves) {
+	public void generateTerrain(int maxHeight, int minHeight, int smoothLevel, int seed, float noiseSize, float persistence, int octaves, boolean textures) {
 		// Stores the height of each x, z coordinate
 		int heightData[][] = new int[arraySize.x][arraySize.z];
 		
@@ -117,7 +117,7 @@ public class CubeTerrain {
 		for(int z = 0; z < arraySize.z; z++) {
 			for(int x = 0; x < arraySize.x; x++) {
 					for(int y = heightData[x][z]; y >= 0; y--) {
-						terrain[x][y][z] = createCube(new Vector3(x, y, z));
+						terrain[x][y][z] = createCube(new Vector3(x, y, z), textures);
 					}
 			}
 		}
@@ -135,7 +135,7 @@ public class CubeTerrain {
 			int y = heightData[x][z];
 			
 			// Create the tree
-			treeGen.createTree();
+			treeGen.createTree(textures);
 			treeGen.placeObstacle(new Vector3(x, y, z), false);
 		}
 		
@@ -171,7 +171,7 @@ public class CubeTerrain {
 		GL11.glEndList();
 	}
 	
-	private Cube createCube(Vector3 arrayPosition) {
+	private Cube createCube(Vector3 arrayPosition, boolean textures) {
 		// Calculate the coordinates
 		Vector3f pos1 = new Vector3f(arrayPosition.x * cubeSize.x, arrayPosition.y * cubeSize.y, arrayPosition.z * cubeSize.z);
 		Vector3f pos2 = Vector3f.add(pos1, cubeSize);
@@ -182,21 +182,24 @@ public class CubeTerrain {
 		
 		if(arrayPosition.y == 0) {
 			// Dirt
-			color = new Vector4f(0.5f, 0.25f, 0.0f, 1.0f);
+			color = new Vector4f(0.35f, 0.15f, 0.0f, 1.0f);
 			texture = dirtTexture;
 		} else if(arrayPosition.y < 3) {
 			// Water
-			color = new Vector4f(0.2f, 0.2f, 0.7f, 0.7f);
+			color = new Vector4f(0.0f, 0.2f, 0.7f, 0.6f);
 			texture = waterTexture;
 		} else if(arrayPosition.y < 6) {
 			// Grass
-			color = new Vector4f(0.2f, 0.7f, 0.2f, 1.0f);
+			color = new Vector4f(0.2f, 0.4f, 0.1f, 1.0f);
 			texture = grassTexture;
 		} else {
 			// Stone
-			color = new Vector4f(0.4f, 0.4f, 0.4f, 1.0f);
+			color = new Vector4f(0.3f, 0.3f, 0.3f, 1.0f);
 			texture = stoneTexture;
 		}
+		
+		if(!textures)
+			texture = null;
 		
 		return new Cube(pos1, pos2, color, texture);
 	}

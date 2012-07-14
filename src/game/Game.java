@@ -21,6 +21,7 @@ public class Game {
 	private static final float FALSE_GRAVITY_SPEED = 8.0f;
 	private static final boolean FULLSCREEN = true;
 	private static final boolean VSYNC = true;
+	private static final boolean TEXTURES = false;
 	
 	// Game components
 	private Camera camera;
@@ -104,7 +105,7 @@ public class Game {
 		final int TERRAIN_GEN_OCTAVES = 1;
 		
 		terrain.generateTerrain(TERRAIN_MAX_HEIGHT, TERRAIN_MIN_HEIGHT, TERRAIN_SMOOTH_LEVEL,
-								TERRAIN_GEN_SEED, TERRAIN_GEN_NOISE_SIZE, TERRAIN_GEN_PERSISTENCE, TERRAIN_GEN_OCTAVES);
+								TERRAIN_GEN_SEED, TERRAIN_GEN_NOISE_SIZE, TERRAIN_GEN_PERSISTENCE, TERRAIN_GEN_OCTAVES, TEXTURES);
 		
 		// Create the camera
 		camera = new Camera(new Vector3f(0.0f, 2.0f, 20.0f), new Vector3f(0.0f, 0.0f, 0.0f), terrain);
@@ -119,7 +120,7 @@ public class Game {
 		objModelTest = new OBJModel();
 		
 		try {
-			objModelTest.loadModel(new FileInputStream(new File("res/ladybird_q.obj")));
+			objModelTest.loadModel(new FileInputStream(new File("res/GameChar.obj")));
 		} catch(Exception e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -158,7 +159,7 @@ public class Game {
 			
 			GL11.glColor3f(1.0f, 0.0f, 0.0f);
 
-			objModelTest.render(new Vector3f(0.0f, -30.0f, 0.0f), new Vector3f(0.0f, 45.0f, 0.0f), new Vector3f(0.01f, 0.01f, 0.01f));
+			objModelTest.render(new Vector3f(0.0f, -30.0f, 0.0f), new Vector3f(0.0f, 45.0f, 0.0f), new Vector3f(1.0f, 1.0f, 1.0f));
 			
 			GL11.glColor3f(1.0f, 1.0f, 1.0f);
 			GL11.glDisable(GL11.GL_COLOR_MATERIAL);

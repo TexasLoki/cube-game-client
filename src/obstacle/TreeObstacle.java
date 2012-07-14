@@ -11,7 +11,7 @@ public class TreeObstacle extends Obstacle {
 		super(terrain, textureStore);
 	}
 	
-	public void createTree() {
+	public void createTree(boolean textures) {
 		// Specify size
 		xLength = 5;
 		zLength = 5;
