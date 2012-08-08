@@ -12,6 +12,9 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 import org.newdawn.slick.opengl.Texture;
 
+import profiling.Profiling;
+import profiling.ProfilingPart;
+
 
 public class Game {
 	
@@ -20,8 +23,8 @@ public class Game {
 	private static final float MOVEMENT_SPEED_FLYMODE = 10.0f;
 	private static final float FALSE_GRAVITY_SPEED = 8.0f;
 	private static final boolean FULLSCREEN = true;
-	private static final boolean VSYNC = true;
-	private static final boolean TEXTURES = false;
+	private static final boolean VSYNC = false;
+	private static final boolean TEXTURES = true;
 	
 	// Game components
 	private Camera camera;
@@ -41,6 +44,11 @@ public class Game {
 	
 	// OBJ model test
 	private OBJModel objModelTest;
+	
+	// Profiling
+	private Profiling profiling = new Profiling();
+	private ProfilingPart displayUpdate = new ProfilingPart("DISPLAY UPDATE");
+	private ProfilingPart inputHandling = new ProfilingPart("INPUT HANDLING");
 	
 	public void start() {
 		// Create the display
@@ -135,6 +143,8 @@ public class Game {
 			long t = System.currentTimeMillis();
 			float deltaTime = (t - lastFrame) * 0.001f;
 			
+			profiling.frameBegin();
+			
 			// Clear the screen
 			GL11.glClearColor(0.25f, 0.8f, 1.0f, 1.0f);
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
@@ -150,7 +160,7 @@ public class Game {
 			
 			// Render the terrain
 			terrain.render();
-			
+				
 			// Render the skybox
 			if(renderSkybox)
 				skybox.render();
@@ -176,53 +186,57 @@ public class Game {
 					" xRot: " + camera.rotation.x + " yRot: " + camera.rotation.y + " zRot: " + camera.rotation.z);
 			
 			// Updates the display, also polls the mouse and keyboard
-			Display.update();
+			profiling.partBegin(displayUpdate);
+				Display.update();
+			profiling.partEnd(displayUpdate);
 			
 			// Handle mouse movement
 			camera.addRotation(new Vector3f(Mouse.getDY() * MOUSE_SPEED_SCALE, -Mouse.getDX() * MOUSE_SPEED_SCALE, 0.0f));
 			
 			float movementSpeed = flyMode ? MOVEMENT_SPEED_FLYMODE : MOVEMENT_SPEED;
 			
-			// Handle keypresses
-			if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
-				break;
-			if(Keyboard.isKeyDown(Keyboard.KEY_W))
-				camera.move(movementSpeed * deltaTime, Camera.FORWARD, 0, doCollisionChecking, flyMode);
-			if(Keyboard.isKeyDown(Keyboard.KEY_S))
-				camera.move(movementSpeed * deltaTime, Camera.BACKWARD, 0, doCollisionChecking, flyMode);
-			if(Keyboard.isKeyDown(Keyboard.KEY_A))
-				camera.move(movementSpeed * deltaTime, Camera.LEFT, 0, doCollisionChecking, flyMode);
-			if(Keyboard.isKeyDown(Keyboard.KEY_D))
-				camera.move(movementSpeed * deltaTime, Camera.RIGHT, 0, doCollisionChecking, flyMode);
-			if(Keyboard.isKeyDown(Keyboard.KEY_SPACE))
-				camera.move(0, Camera.RIGHT, -FALSE_GRAVITY_SPEED * 2 * deltaTime, doCollisionChecking, flyMode);
-			if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
-				camera.move(0, Camera.RIGHT, FALSE_GRAVITY_SPEED * 2 * deltaTime, doCollisionChecking, flyMode);
-			
-			if(Keyboard.isKeyDown(Keyboard.KEY_UP)) {
-				movingCube.pos1.y += deltaTime * 20.0f;
-				movingCube.pos2.y += deltaTime * 20.0f;
-			}
-			else if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
-				movingCube.pos1.y -= deltaTime * 20.0f;
-				movingCube.pos2.y -= deltaTime * 20.0f;
-			}
-			
-			// Check for pressed keys
-			while (Keyboard.next()) {
-				if (Keyboard.getEventKeyState()) {
-					if (Keyboard.getEventKey() == Keyboard.KEY_F) {
-					    	flyMode = !flyMode;
-					} else if (Keyboard.getEventKey() == Keyboard.KEY_C) {
-					    	doCollisionChecking = !doCollisionChecking;
-					} else if (Keyboard.getEventKey() == Keyboard.KEY_B) {
-					    	renderSkybox = !renderSkybox;
-					} else if (Keyboard.getEventKey() == Keyboard.KEY_V) {
-					    	wireframe = !wireframe;
+			profiling.partBegin(inputHandling);
+				// Handle keypresses
+				if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
+					break;
+				if(Keyboard.isKeyDown(Keyboard.KEY_W))
+					camera.move(movementSpeed * deltaTime, Camera.FORWARD, 0, doCollisionChecking, flyMode);
+				if(Keyboard.isKeyDown(Keyboard.KEY_S))
+					camera.move(movementSpeed * deltaTime, Camera.BACKWARD, 0, doCollisionChecking, flyMode);
+				if(Keyboard.isKeyDown(Keyboard.KEY_A))
+					camera.move(movementSpeed * deltaTime, Camera.LEFT, 0, doCollisionChecking, flyMode);
+				if(Keyboard.isKeyDown(Keyboard.KEY_D))
+					camera.move(movementSpeed * deltaTime, Camera.RIGHT, 0, doCollisionChecking, flyMode);
+				if(Keyboard.isKeyDown(Keyboard.KEY_SPACE))
+					camera.move(0, Camera.RIGHT, -FALSE_GRAVITY_SPEED * 2 * deltaTime, doCollisionChecking, flyMode);
+				if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+					camera.move(0, Camera.RIGHT, FALSE_GRAVITY_SPEED * 2 * deltaTime, doCollisionChecking, flyMode);
+				
+				if(Keyboard.isKeyDown(Keyboard.KEY_UP)) {
+					movingCube.pos1.y += deltaTime * 20.0f;
+					movingCube.pos2.y += deltaTime * 20.0f;
+				}
+				else if(Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
+					movingCube.pos1.y -= deltaTime * 20.0f;
+					movingCube.pos2.y -= deltaTime * 20.0f;
+				}
+				
+				// Check for pressed keys
+				while (Keyboard.next()) {
+					if (Keyboard.getEventKeyState()) {
+						if (Keyboard.getEventKey() == Keyboard.KEY_F) {
+						    	flyMode = !flyMode;
+						} else if (Keyboard.getEventKey() == Keyboard.KEY_C) {
+						    	doCollisionChecking = !doCollisionChecking;
+						} else if (Keyboard.getEventKey() == Keyboard.KEY_B) {
+						    	renderSkybox = !renderSkybox;
+						} else if (Keyboard.getEventKey() == Keyboard.KEY_V) {
+						    	wireframe = !wireframe;
+						}
 					}
 				}
-			}
-			
+			profiling.partEnd(inputHandling);
+				
 			// Apply gravity
 			if(!flyMode)
 				camera.move(0, Camera.FORWARD, deltaTime * FALSE_GRAVITY_SPEED, doCollisionChecking, flyMode);
@@ -242,6 +256,8 @@ public class Game {
 			} else if(movingCube.pos2.z >= 40.0f) {
 				movingCubeVel = new Vector3f(0.0f, 0.0f, -20.0f);
 			}
+			
+			profiling.frameEnd();
 			
 			lastFrame = t;
 		}
