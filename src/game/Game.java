@@ -22,7 +22,7 @@ public class Game {
 	private static final float MOVEMENT_SPEED = 5.0f;
 	private static final float MOVEMENT_SPEED_FLYMODE = 10.0f;
 	private static final float FALSE_GRAVITY_SPEED = 8.0f;
-	private static final boolean FULLSCREEN = true;
+	private static final boolean FULLSCREEN = false;
 	private static final boolean VSYNC = false;
 	private static final boolean TEXTURES = true;
 	
@@ -102,7 +102,7 @@ public class Game {
 		Texture trollfaceTexture = textureStore.getTexture("res/troll.png");
 		
 		// Create the terrain
-		terrain = new CubeTerrain(new Vector3(50, 25, 50), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(-25.0f, -40.0f, -25.0f), textureStore);
+		terrain = new CubeTerrain(new Vector3(50, 50, 50), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(-25.0f, -40.0f, -25.0f), textureStore);
 		
 		final int TERRAIN_MAX_HEIGHT = 20;
 		final int TERRAIN_MIN_HEIGHT = 3;
@@ -169,6 +169,7 @@ public class Game {
 			movingCube.render();
 			
 			// Render the OBJ model
+			/*
 			GL11.glPushMatrix();
 			GL11.glColorMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE);
 			GL11.glEnable(GL11.GL_COLOR_MATERIAL);
@@ -180,10 +181,7 @@ public class Game {
 			GL11.glColor3f(1.0f, 1.0f, 1.0f);
 			GL11.glDisable(GL11.GL_COLOR_MATERIAL);
 			GL11.glPopMatrix();
-			
-			// Set title to debug info
-			Display.setTitle("x: " + camera.coordinates.x + " y: " + camera.coordinates.y + " z: " + camera.coordinates.z +
-					" xRot: " + camera.rotation.x + " yRot: " + camera.rotation.y + " zRot: " + camera.rotation.z);
+			*/
 			
 			// Updates the display, also polls the mouse and keyboard
 			profiling.partBegin(displayUpdate);
@@ -258,6 +256,11 @@ public class Game {
 			}
 			
 			profiling.frameEnd();
+			
+			// Set title to debug info
+			Display.setTitle("x: " + (int)camera.coordinates.x + " y: " + (int)camera.coordinates.y + " z: " + (int)camera.coordinates.z +
+					" xRot: " + (int)camera.rotation.x + " yRot: " + (int)camera.rotation.y + " zRot: " + camera.rotation.z + " FPS: " + Math.round(profiling.fps()));
+
 			
 			lastFrame = t;
 		}
