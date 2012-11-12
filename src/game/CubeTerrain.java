@@ -82,8 +82,8 @@ public class CubeTerrain {
 		
 		// Smoothen the terrain
 		while(smoothLevel > 0) {
-			for(int z = 1; z < arraySize.z; z += 1) {
-				for(int x = 1; x < arraySize.x; x += 1) {
+			for(int z = 0; z < arraySize.z; z += 1) {
+				for(int x = 0; x < arraySize.x; x += 1) {
 					float totalHeight = 0.0f;
 					float count = 0;
 					

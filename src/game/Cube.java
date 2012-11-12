@@ -8,10 +8,10 @@ public class Cube {
 	public Vector3f pos1, pos2;
 	
 	// Color to use if no texture is present
-	protected Vector4f color;	
+	public Vector4f color;
 	
 	// Texture class from Slick-Util library
-	protected Texture texture;
+	public Texture texture;
 	
 	// Determines which sides to draw
 	protected boolean renderTop, renderBottom, renderFront, renderBack, renderRight, renderLeft;
