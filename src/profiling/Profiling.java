@@ -8,6 +8,8 @@ public class Profiling {
 	private long frameBeginTime = 0;
 	private long frameEndTime = 0;
 	
+	private static final boolean PRINT = false;
+	
 	private List<ProfilingPart> parts = new LinkedList<ProfilingPart>();
 	
 	public Profiling() {
@@ -36,7 +38,7 @@ public class Profiling {
 		frameEndTime = System.currentTimeMillis();
 		
 		long frameTime = frameEndTime - frameBeginTime;
-		System.out.println("-- NEW FRAME: " + frameTime + " MS (" + fps() + "FPS --");
+		if(PRINT) System.out.println("-- NEW FRAME: " + frameTime + " MS (" + fps() + "FPS --");
 		
 		float otherPercent = 100.0f;
 		long otherTime = frameTime;
@@ -44,12 +46,12 @@ public class Profiling {
 		for(ProfilingPart pp : parts) {
 			long partTime = pp.partEndTime - pp.partBeginTime;
 			float percent = (((float)partTime) / ((float)frameTime)) * 100.0f;
-			System.out.println("\t" + pp.name + " - " + partTime + " MS (" + percent + " %)");
+			if(PRINT) System.out.println("\t" + pp.name + " - " + partTime + " MS (" + percent + " %)");
 			otherPercent -= percent;
 			otherTime -= partTime;
 		}
 		
-		System.out.println("\tOTHER - " + otherTime + " MS (" + otherPercent + " %)");
+		if(PRINT) System.out.println("\tOTHER - " + otherTime + " MS (" + otherPercent + " %)");
 	}
 	
 	public float fps() {
