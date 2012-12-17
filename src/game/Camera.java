@@ -84,7 +84,7 @@ public class Camera {
 		
 		Vector3f c1 = new Vector3f(x - cubeSize / 2, y, z);
 		Vector3f c2 = new Vector3f(x + cubeSize / 2, y, z);
-		Vector3f c3 = new Vector3f(x, y - 1.5f, z);				// This is 1.5f to simulate the proportions of a human (head/camera at top of body)
+		Vector3f c3 = new Vector3f(x, y - 2f, z);				// This is 2f to somewhat simulate the proportions of a human (head/camera at top of body)
 		Vector3f c4 = new Vector3f(x, y + cubeSize / 2, z);
 		Vector3f c5 = new Vector3f(x, y, z - cubeSize / 2);
 		Vector3f c6 = new Vector3f(x, y, z + cubeSize / 2);
