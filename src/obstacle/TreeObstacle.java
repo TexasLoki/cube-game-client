@@ -31,7 +31,7 @@ public class TreeObstacle extends Obstacle {
 		for(int x = 0; x < xLength; x++) {
 			for(int y = yLength/2; y < yLength -1; y++) {
 				for(int z = 0; z < zLength; z++) {
-					obstacleArray[x][y][z] = new Cube(null, null, new Vector4f(0.0f, 0.25f, 0.06f, 1.0f), null);
+					obstacleArray[x][y][z] = new Cube(null, null, new Vector4f(0.0f, 0.25f, 0.06f, 1.0f), null, null);
 				}
 			}
 		}	
@@ -39,7 +39,7 @@ public class TreeObstacle extends Obstacle {
 		for(int x = 1; x < xLength - 1; x++) {
 			for(int y = yLength - 1; y < yLength; y++) {
 				for(int z = 1; z < zLength - 1; z++) {
-					obstacleArray[x][y][z] = new Cube(null, null, new Vector4f(0.0f, 0.25f, 0.06f, 1.0f), null);
+					obstacleArray[x][y][z] = new Cube(null, null, new Vector4f(0.0f, 0.25f, 0.06f, 1.0f), null, null);
 				}
 			}
 		}
@@ -54,7 +54,7 @@ public class TreeObstacle extends Obstacle {
 		
 		// Create stem
 		for(int y = 0; y < yLength - 1; y++ ) {
-			obstacleArray[xLength/2][y][zLength/2] = new Cube(null, null, new Vector4f(0.25f, 0.125f, 0.0f, 1.0f), null);
+			obstacleArray[xLength/2][y][zLength/2] = new Cube(null, null, new Vector4f(0.25f, 0.125f, 0.0f, 1.0f), null, null);
 		}
 		
 	}

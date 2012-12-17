@@ -6,7 +6,7 @@ import org.newdawn.slick.opengl.Texture;
 public class Skybox extends Cube {
 
 	public Skybox(Vector3f pos1, Vector3f pos2, Vector4f color, Texture texture) {
-		super(pos1, pos2, color, texture);
+		super(pos1, pos2, color, texture, null);
 	}
 
 	@Override

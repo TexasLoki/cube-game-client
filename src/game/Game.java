@@ -1,4 +1,5 @@
 package game;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.FloatBuffer;
@@ -22,7 +23,7 @@ public class Game {
 	private static final float MOVEMENT_SPEED = 5.0f;
 	private static final float MOVEMENT_SPEED_FLYMODE = 10.0f;
 	private static final float FALSE_GRAVITY_SPEED = 8.0f;
-	private static final boolean FULLSCREEN = false;
+	private static final boolean FULLSCREEN = true;
 	private static final boolean VSYNC = false;
 	private static final boolean TEXTURES = true;
 	
@@ -123,7 +124,7 @@ public class Game {
 		skybox = new Skybox(new Vector3f(-50.0f, -50.0f, -50.0f), new Vector3f(50.0f, 50.0f, 50.0f), null, skyboxTexture);
 		
 		// Create the moving cube
-		movingCube = new Cube(new Vector3f(-5.0f, 30.0f, -5.0f), new Vector3f(5.0f, 40.0f, 5.0f), null, trollfaceTexture);
+		movingCube = new Cube(new Vector3f(-5.0f, 30.0f, -5.0f), new Vector3f(5.0f, 40.0f, 5.0f), null, trollfaceTexture, null);
 		
 		// Load the OBJ model
 		objModelTest = new OBJModel();
@@ -266,7 +267,6 @@ public class Game {
 		}
 		
 		// Cleanup
-		terrain.release();
 		Display.destroy();
 	}
 
@@ -276,3 +276,4 @@ public class Game {
 	}
 
 }
+

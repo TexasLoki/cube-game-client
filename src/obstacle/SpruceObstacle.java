@@ -31,7 +31,7 @@ public class SpruceObstacle extends Obstacle {
 		for(int y = stemHeight; y < stemHeight + crownHeightPerLevel; y++) {
 			for(int x = 0; x < stemThickness; x++) {
 				for(int z = 0; z < stemThickness; z++) {
-					obstacleArray[(xLength - stemThickness) / 2 + x][y][(zLength - stemThickness) / 2 + z] = new Cube(null, null, new Vector4f(0.0f, 0.20f, 0.04f, 1.0f), null);
+					obstacleArray[(xLength - stemThickness) / 2 + x][y][(zLength - stemThickness) / 2 + z] = new Cube(null, null, new Vector4f(0.0f, 0.20f, 0.04f, 1.0f), null, null);
 				}
 			}
 		}
@@ -41,7 +41,7 @@ public class SpruceObstacle extends Obstacle {
 			
 			for(int x = 0; x < rectSize; x++) {
 				for(int z = 0; z < rectSize; z++) {
-					obstacleArray[(xLength - rectSize) / 2 + x][y][(zLength - rectSize) / 2 + z] = new Cube(null, null, new Vector4f(0.0f, 0.20f, 0.04f, 1.0f), null);
+					obstacleArray[(xLength - rectSize) / 2 + x][y][(zLength - rectSize) / 2 + z] = new Cube(null, null, new Vector4f(0.0f, 0.20f, 0.04f, 1.0f), null, null);
 				}
 			}
 			
@@ -51,7 +51,7 @@ public class SpruceObstacle extends Obstacle {
 		for(int y = 0; y < stemHeight; y++) {
 			for(int x = 0; x < stemThickness; x++) {
 				for(int z = 0; z < stemThickness; z++) {
-					obstacleArray[(xLength - stemThickness) / 2 + x][y][(zLength - stemThickness) / 2 + z] = new Cube(null, null, new Vector4f(0.25f, 0.125f, 0.0f, 1.0f), null);
+					obstacleArray[(xLength - stemThickness) / 2 + x][y][(zLength - stemThickness) / 2 + z] = new Cube(null, null, new Vector4f(0.25f, 0.125f, 0.0f, 1.0f), null, null);
 				}
 			}
 			
