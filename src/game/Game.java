@@ -17,10 +17,10 @@ import profiling.ProfilingPart;
 public class Game {
 	
 	private static final float MOUSE_SPEED_SCALE = 0.1f;
-	private static final float MOVEMENT_SPEED = 5.0f;
-	private static final float MOVEMENT_SPEED_FLYMODE = 10.0f;
+	private static final float MOVEMENT_SPEED = 7.0f;
+	private static final float MOVEMENT_SPEED_FLYMODE = 12.0f;
 	private static final float FALSE_GRAVITY_SPEED = 8.0f;
-	private static final boolean FULLSCREEN = false;
+	private static final boolean FULLSCREEN = true;
 	private static final boolean VSYNC = true;
 	private static final boolean TEXTURES = true;
 	
@@ -49,16 +49,16 @@ public class Game {
 		textureStore = new TextureStore();
 		
 		// Generate the terrain
-		terrain = new CubeTerrain(new Vector3(200, 50, 200), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(-25.0f, -40.0f, -25.0f), textureStore);
+		terrain = new CubeTerrain(new Vector3(150, 50, 150), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(-25.0f, -40.0f, -25.0f), textureStore);
 		
 		final int TERRAIN_MAX_HEIGHT = 20;
 		final int TERRAIN_MIN_HEIGHT = 3;
-		final int TERRAIN_SMOOTH_LEVEL = 4;
+		final int TERRAIN_SMOOTH_LEVEL = 5;
 		
 		final int TERRAIN_GEN_SEED = 0;
-		final float TERRAIN_GEN_NOISE_SIZE = 2.0f;
-		final float TERRAIN_GEN_PERSISTENCE = 0.25f;
-		final int TERRAIN_GEN_OCTAVES = 1;
+		final float TERRAIN_GEN_NOISE_SIZE = 1.0f;
+		final float TERRAIN_GEN_PERSISTENCE = 0.75f;
+		final int TERRAIN_GEN_OCTAVES = 5;
 		
 		terrain.generateTerrain(TERRAIN_MAX_HEIGHT, TERRAIN_MIN_HEIGHT, TERRAIN_SMOOTH_LEVEL,
 								TERRAIN_GEN_SEED, TERRAIN_GEN_NOISE_SIZE, TERRAIN_GEN_PERSISTENCE, TERRAIN_GEN_OCTAVES, TEXTURES);
