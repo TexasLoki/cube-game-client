@@ -280,19 +280,19 @@ public class CubeTerrain {
 		if(arrayPosition.y == 0) {
 			// Dirt
 			color = new Vector4f(0.35f, 0.15f, 0.0f, 1.0f);
-			texCoords = new Rectf(0.25f, 0.0f, 0.5f, 1.0f);
+			texCoords = new Rectf(1/16f, 0/16f, 2/16f, 1/16f);
 		} else if(arrayPosition.y < 3) {
 			// Water
 			color = new Vector4f(0.0f, 0.2f, 0.7f, 0.6f);
-			texCoords = new Rectf(0.75f, 0.0f, 1.0f, 1.0f);
+			texCoords = new Rectf(3/16f, 0/16f, 4/16f, 1/16f);
 		} else if(arrayPosition.y < 6) {
 			// Grass
 			color = new Vector4f(0.2f, 0.4f, 0.1f, 1.0f);
-			texCoords = new Rectf(0.0f, 0.0f, 0.25f, 1.0f);
+			texCoords = new Rectf(0/16f, 0/16f, 1/16f, 1/16f);
 		} else {
 			// Stone
 			color = new Vector4f(0.3f, 0.3f, 0.3f, 1.0f);
-			texCoords = new Rectf(0.5f, 0.0f, 0.75f, 1.0f);
+			texCoords = new Rectf(2/16f, 0/16f, 3/16f, 1/16f);
 		}
 		
 		if(!useTextures)
