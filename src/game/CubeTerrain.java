@@ -33,13 +33,10 @@ public class CubeTerrain {
 	private FloatBuffer colorBuffer;
 	private FloatBuffer texCoordsBuffer;
 	
-	private TextureStore textureStore;
-	
 	public CubeTerrain(Vector3 arraySize, Vector3f cubeSize, Vector3f translation, TextureStore textureStore) {
 		this.arraySize = arraySize;
 		this.cubeSize = cubeSize;
 		this.translation = translation;
-		this.textureStore = textureStore;
 		
 		// Create the cube array
 		terrain = new Cube[arraySize.x][arraySize.y][arraySize.z];
