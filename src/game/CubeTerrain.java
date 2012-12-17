@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import obstacle.SpruceObstacle;
 import obstacle.TreeObstacle;
 
 import org.lwjgl.BufferUtils;
@@ -125,7 +126,7 @@ public class CubeTerrain {
 		
 		// Create tree obstacles
 		TreeObstacle treeGen = new TreeObstacle(this, textures);
-		int treeCount = 10;
+		int treeCount = 100;
 		
 		for(int treeIndex = 0; treeIndex < treeCount; treeIndex++) {
 			// Select a random position on the terrain
@@ -139,9 +140,9 @@ public class CubeTerrain {
 		}
 		
 		// Create spruce obstacles
-		/*
-		SpruceObstacle spruceGen = new SpruceObstacle(this, textureStore);
-		int spruceCount = 5;
+		
+		SpruceObstacle spruceGen = new SpruceObstacle(this, textures);
+		int spruceCount = 15;
 		
 		for(int spruceIndex = 0; spruceIndex < spruceCount; spruceIndex++) {
 			// Select a random position on the terrain
@@ -150,10 +151,9 @@ public class CubeTerrain {
 			int y = heightData[x][z];
 			
 			// Create the spruce
-			spruceGen.createSpruce(textures);
+			spruceGen.createSpruce(useTextures);
 			spruceGen.placeObstacle(new Vector3(x, y, z), false);
 		}
-		*/
 		
 		// Calculate which sides each cube needs to render
 		for(int z = 0; z < arraySize.z; z++) {
