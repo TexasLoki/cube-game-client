@@ -120,6 +120,7 @@ public class CubeTerrain {
 		}
 		
 		Random rand = new Random();
+		
 		/*
 		// Create tree obstacles
 		TreeObstacle treeGen = new TreeObstacle(this, textureStore);
