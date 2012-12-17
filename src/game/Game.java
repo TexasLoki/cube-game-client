@@ -38,8 +38,8 @@ public class Game {
 	// Profiling
 	private Profiling profiling = new Profiling();
 	private ProfilingPart displayUpdate = new ProfilingPart("Display.update()");
-	private ProfilingPart renderFunction = new ProfilingPart("RENDER FUNCTION");
-	private ProfilingPart updateFunction = new ProfilingPart("UPDATE FUNCTION");
+	private ProfilingPart renderFunction = new ProfilingPart("Render");
+	private ProfilingPart updateFunction = new ProfilingPart("Update");
 	
 	public void start() {
 		// Initialize OpenGL and LWJGL stuff
