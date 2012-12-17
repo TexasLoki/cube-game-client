@@ -158,15 +158,18 @@ public class CubeTerrain {
 		// Calculate which sides each cube needs to render
 		for(int z = 0; z < arraySize.z; z++) {
 			for(int x = 0; x < arraySize.x; x++) {
-				for(int y = heightData[x][z]; y >= 0; y--) {
-					boolean renderTop = (y == heightData[x][z]) || (y == 0);
-					boolean renderBottom = (y == 0) || (y == 3);
-					boolean renderFront = (z == arraySize.z - 1) || (terrain[x][y][z + 1] == null);
-					boolean renderBack = (z == 0) || (terrain[x][y][z - 1] == null);
-					boolean renderRight = (x == arraySize.x - 1) || (terrain[x + 1][y][z] == null);
-					boolean renderLeft = (x == 0) || (terrain[x - 1][y][z] == null);
-					
-					terrain[x][y][z].setVisibleSides(renderTop, renderBottom, renderFront, renderBack, renderRight, renderLeft);
+				for(int y = 0; y < arraySize.y; y++) {
+					if(terrain[x][y][z] != null) {
+						boolean renderTop = (y == 0) || (y == arraySize.y - 1) || (terrain[x][y + 1][z] == null);
+						boolean renderBottom = (y == 0) || (terrain[x][y - 1][z] == null);
+						boolean renderFront = (z == arraySize.z - 1) || (terrain[x][y][z + 1] == null);
+						boolean renderBack = (z == 0) || (terrain[x][y][z - 1] == null);
+						boolean renderRight = (x == arraySize.x - 1) || (terrain[x + 1][y][z] == null);
+						boolean renderLeft = (x == 0) || (terrain[x - 1][y][z] == null);
+						
+						
+						terrain[x][y][z].setVisibleSides(renderTop, renderBottom, renderFront, renderBack, renderRight, renderLeft);
+					}
 				}
 			}
 		}
