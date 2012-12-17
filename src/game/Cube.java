@@ -12,15 +12,17 @@ public class Cube {
 	
 	// Texture class from Slick-Util library
 	public Texture texture;
+	public Rectf texRect;
 	
 	// Determines which sides to draw
 	protected boolean renderTop, renderBottom, renderFront, renderBack, renderRight, renderLeft;
 	
-	public Cube(Vector3f pos1, Vector3f pos2, Vector4f color, Texture texture) {
+	public Cube(Vector3f pos1, Vector3f pos2, Vector4f color, Texture texture, Rectf texRect) {
 		this.pos1 = pos1;
 		this.pos2 = pos2;
 		this.color = color;
 		this.texture = texture;
+		this.texRect = texRect;
 		
 		// Default is to draw all sides
 		this.renderTop = true;
@@ -41,7 +43,7 @@ public class Cube {
 		this.renderLeft = drawLeft;
 	}
 	
-	/* Renders the cube. */
+	/* Renders the cube (sloooooow function). */
 	public void render() {
 		if(texture != null) {
 			// Set the texture
@@ -159,6 +161,487 @@ public class Cube {
 
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_COLOR_MATERIAL);
+	}
+	
+	/* Returns the vertices representing this cube as a float array. */
+	public float[] getVertices() {
+		float[] vertices;
+		int sides = 0;
+		
+		// Calculate the array size
+		if(renderTop)
+			sides++;
+			
+		if(renderBottom)
+			sides++;
+		
+		if(renderFront)
+			sides++;
+		
+		if(renderBack)
+			sides++;
+		
+		if(renderRight)
+			sides++;
+		
+		if(renderLeft)
+			sides++;
+		
+		// Allocate the array
+		vertices = new float[sides * 4 * 3];
+		
+		// Write array data
+		int pos = 0;
+		
+		// Top
+		if(renderTop) {
+			putCoordinatesInArray(vertices, pos, pos2.x, pos2.y, pos1.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos1.x, pos2.y, pos1.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos1.x, pos2.y, pos2.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos2.x, pos2.y, pos2.z);
+			pos += 3;
+		}
+		
+		// Bottom
+		if(renderBottom) {
+			putCoordinatesInArray(vertices, pos, pos2.x, pos1.y, pos2.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos1.x, pos1.y, pos2.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos1.x, pos1.y, pos1.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos2.x, pos1.y, pos1.z);
+			pos += 3;
+		}
+		
+		// Front
+		if(renderFront) {
+			putCoordinatesInArray(vertices, pos, pos2.x, pos2.y, pos2.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos1.x, pos2.y, pos2.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos1.x, pos1.y, pos2.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos2.x, pos1.y, pos2.z);
+			pos += 3;
+		}
+		
+		// Back
+		if(renderBack) {
+			putCoordinatesInArray(vertices, pos, pos1.x, pos2.y, pos1.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos2.x, pos2.y, pos1.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos2.x, pos1.y, pos1.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos1.x, pos1.y, pos1.z);
+			pos += 3;
+		}
+		
+		// Right
+		if(renderRight) {
+			putCoordinatesInArray(vertices, pos, pos2.x, pos2.y, pos1.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos2.x, pos2.y, pos2.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos2.x, pos1.y, pos2.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos2.x, pos1.y, pos1.z);
+			pos += 3;
+		}
+		
+		// Left
+		if(renderLeft) {
+			putCoordinatesInArray(vertices, pos, pos1.x, pos2.y, pos2.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos1.x, pos2.y, pos1.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos1.x, pos1.y, pos1.z);
+			pos += 3;
+			
+			putCoordinatesInArray(vertices, pos, pos1.x, pos1.y, pos2.z);
+			pos += 3;
+		}
+		
+		return vertices;
+	}
+	
+	/* Returns the normals representing of this cube as a float array. */
+	public float[] getNormals() {
+		float[] normals;
+		int sides = 0;
+		
+		// Calculate the array size
+		if(renderTop)
+			sides++;
+			
+		if(renderBottom)
+			sides++;
+		
+		if(renderFront)
+			sides++;
+		
+		if(renderBack)
+			sides++;
+		
+		if(renderRight)
+			sides++;
+		
+		if(renderLeft)
+			sides++;
+		
+		// Allocate the array
+		normals = new float[sides * 4 * 3];
+		
+		// Write array data
+		int pos = 0;
+		
+		// Top
+		if(renderTop) {
+			putCoordinatesInArray(normals, pos, 1.0f, 1.0f, -1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, -1.0f, 1.0f, -1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, -1.0f, 1.0f, 1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, 1.0f, 1.0f, 1.0f);
+			pos += 3;
+		}
+		
+		// Bottom
+		if(renderBottom) {
+			putCoordinatesInArray(normals, pos, 1.0f, -1.0f, 1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, -1.0f, -1.0f, 1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, -1.0f, -1.0f, -1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, 1.0f, -1.0f, -1.0f);
+			pos += 3;
+		}
+		
+		// Front
+		if(renderFront) {
+			putCoordinatesInArray(normals, pos, 1.0f, 1.0f, 1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, -1.0f, 1.0f, 1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, -1.0f, -1.0f, 1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, 1.0f, -1.0f, 1.0f);
+			pos += 3;
+		}
+		
+		// Back
+		if(renderBack) {
+			putCoordinatesInArray(normals, pos, -1.0f, 1.0f, -1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, 1.0f, 1.0f, -1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, 1.0f, -1.0f, -1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, -1.0f, -1.0f, -1.0f);
+			pos += 3;
+		}
+		
+		// Right
+		if(renderRight) {
+			putCoordinatesInArray(normals, pos, 1.0f, 1.0f, -1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, 1.0f, 1.0f, 1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, 1.0f, -1.0f, 1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, 1.0f, -1.0f, -1.0f);
+			pos += 3;
+		}
+		
+		// Left
+		if(renderLeft) {
+			putCoordinatesInArray(normals, pos, -1.0f, 1.0f, 1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, -1.0f, 1.0f, -1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, -1.0f, -1.0f, -1.0f);
+			pos += 3;
+			
+			putCoordinatesInArray(normals, pos, -1.0f, -1.0f, 1.0f);
+			pos += 3;
+		}
+		
+		return normals;
+	}
+	
+	/* Returns the colors representing of the vertices of this cube as a float array. */
+	public float[] getColors() {
+		float[] colors;
+		int sides = 0;
+		
+		// Calculate the array size
+		if(renderTop)
+			sides++;
+			
+		if(renderBottom)
+			sides++;
+		
+		if(renderFront)
+			sides++;
+		
+		if(renderBack)
+			sides++;
+		
+		if(renderRight)
+			sides++;
+		
+		if(renderLeft)
+			sides++;
+		
+		// Allocate the array
+		colors = new float[sides * 4 * 4];
+		
+		// Write array data
+		int pos = 0;
+		
+		// Top
+		if(renderTop) {
+			for(int v = 0; v < 4; v++) {
+				colors[pos] = color.x;
+				colors[pos + 1] = color.y;
+				colors[pos + 2] = color.z;
+				colors[pos + 3] = color.a;
+				pos+=4;
+			}
+		}
+		
+		// Bottom
+		if(renderBottom) {
+			for(int v = 0; v < 4; v++) {
+				colors[pos] = color.x;
+				colors[pos + 1] = color.y;
+				colors[pos + 2] = color.z;
+				colors[pos + 3] = color.a;
+				pos+=4;
+			}
+		}
+		
+		// Front
+		if(renderFront) {
+			for(int v = 0; v < 4; v++) {
+				colors[pos] = color.x;
+				colors[pos + 1] = color.y;
+				colors[pos + 2] = color.z;
+				colors[pos + 3] = color.a;
+				pos+=4;
+			}
+		}
+		
+		// Back
+		if(renderBack) {
+			for(int v = 0; v < 4; v++) {
+				colors[pos] = color.x;
+				colors[pos + 1] = color.y;
+				colors[pos + 2] = color.z;
+				colors[pos + 3] = color.a;
+				pos+=4;
+			}
+		}
+		
+		// Right
+		if(renderRight) {
+			for(int v = 0; v < 4; v++) {
+				colors[pos] = color.x;
+				colors[pos + 1] = color.y;
+				colors[pos + 2] = color.z;
+				colors[pos + 3] = color.a;
+				pos+=4;
+			}
+		}
+		
+		// Left
+		if(renderLeft) {
+			for(int v = 0; v < 4; v++) {
+				colors[pos] = color.x;
+				colors[pos + 1] = color.y;
+				colors[pos + 2] = color.z;
+				colors[pos + 3] = color.a;
+				pos+=4;
+			}
+		}
+		
+		return colors;
+	}
+	
+	/* Returns the texture coordinates of this cube as a float array. */
+	public float[] getTexCoords() {
+		float[] coords;
+		int sides = 0;
+		
+		// Calculate the array size
+		if(renderTop)
+			sides++;
+			
+		if(renderBottom)
+			sides++;
+		
+		if(renderFront)
+			sides++;
+		
+		if(renderBack)
+			sides++;
+		
+		if(renderRight)
+			sides++;
+		
+		if(renderLeft)
+			sides++;
+		
+		// Allocate the array
+		coords = new float[sides * 4 * 2];
+		
+		// Write array data
+		int pos = 0;
+		
+		// Top
+		if(renderTop) {
+			putTexCoordinatesInArray(coords, pos, texRect.right, texRect.top);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.left, texRect.top);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.left, texRect.bottom);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.right, texRect.bottom);
+			pos += 2;
+		}
+		
+		// Bottom
+		if(renderBottom) {
+			putTexCoordinatesInArray(coords, pos, texRect.right, texRect.top);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.left, texRect.top);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.left, texRect.bottom);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.right, texRect.bottom);
+			pos += 2;
+		}
+		
+		// Front
+		if(renderFront) {
+			putTexCoordinatesInArray(coords, pos, texRect.right, texRect.top);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.left, texRect.top);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.left, texRect.bottom);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.right, texRect.bottom);
+			pos += 2;
+		}
+		
+		// Back
+		if(renderBack) {
+			putTexCoordinatesInArray(coords, pos, texRect.right, texRect.top);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.left, texRect.top);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.left, texRect.bottom);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.right, texRect.bottom);
+			pos += 2;
+		}
+		
+		// Right
+		if(renderRight) {
+			putTexCoordinatesInArray(coords, pos, texRect.right, texRect.top);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.left, texRect.top);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.left, texRect.bottom);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.right, texRect.bottom);
+			pos += 2;
+		}
+		
+		// Left
+		if(renderLeft) {
+			putTexCoordinatesInArray(coords, pos, texRect.right, texRect.top);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.left, texRect.top);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.left, texRect.bottom);
+			pos += 2;
+			
+			putTexCoordinatesInArray(coords, pos, texRect.right, texRect.bottom);
+			pos += 2;
+		}
+		
+		return coords;
+	}
+	
+	/* Helper function for putting coordinates in an array. */
+	private void putCoordinatesInArray(float[] array, int pos, float x, float y, float z) {
+		array[pos] 		= x;
+		array[pos + 1] 	= y; 
+		array[pos + 2] 	= z;
+	}
+	
+	/* Helper function for putting texture coordinates in an array. */
+	private void putTexCoordinatesInArray(float[] array, int pos, float x, float y) {
+		array[pos] 		= x;
+		array[pos + 1] 	= y; 
 	}
 }
 

@@ -1,12 +1,12 @@
 package game;
+import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-import obstacle.SpruceObstacle;
-import obstacle.TreeObstacle;
-
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
-
 
 public class CubeTerrain {
 
@@ -23,13 +23,12 @@ public class CubeTerrain {
 	public Cube[][][] terrain;
 	
 	// Textures
-	private Texture stoneTexture;
-	private Texture grassTexture;
-	private Texture waterTexture;
-	private Texture dirtTexture;
+	private Texture textures;
 	
-	// Display list
-	private int displayList;
+	private FloatBuffer vertexBuffer;
+	private FloatBuffer normalBuffer;
+	private FloatBuffer colorBuffer;
+	private FloatBuffer texCoordsBuffer;
 	
 	private TextureStore textureStore;
 	
@@ -50,10 +49,7 @@ public class CubeTerrain {
 			}
 		}
 		
-		stoneTexture = textureStore.getTexture("res/stone.png");
-		grassTexture = textureStore.getTexture("res/grass.png");
-		waterTexture = textureStore.getTexture("res/water.png");
-		dirtTexture = textureStore.getTexture("res/dirt.png");
+		textures = textureStore.getTexture("res/cube_textures.png");
 	}
 	
 	public void generateTerrain(int maxHeight, int minHeight, int smoothLevel, int seed, float noiseSize, float persistence, int octaves, boolean textures) {
@@ -124,7 +120,7 @@ public class CubeTerrain {
 		}
 		
 		Random rand = new Random();
-		
+		/*
 		// Create tree obstacles
 		TreeObstacle treeGen = new TreeObstacle(this, textureStore);
 		int treeCount = 5;
@@ -154,6 +150,7 @@ public class CubeTerrain {
 			spruceGen.createSpruce(textures);
 			spruceGen.placeObstacle(new Vector3(x, y, z), false);
 		}
+		*/
 		
 		// Calculate which sides each cube needs to render
 		for(int z = 0; z < arraySize.z; z++) {
@@ -171,53 +168,136 @@ public class CubeTerrain {
 			}
 		}
 		
-		// Create the display list
-		displayList = GL11.glGenLists(1);
-		GL11.glNewList(displayList, GL11.GL_COMPILE);
+		// First find out the required size of the buffer
+		List<float[]> vertexArrays = new ArrayList<float[]>();
+		int numberOfFloats = 0;
 		
 		for(int z = 0; z < arraySize.z; z++) {
 			for(int x = 0; x < arraySize.x; x++) {
 				for(int y = 0; y < arraySize.y; y++) {
-					if(terrain[x][y][z] != null)
-						terrain[x][y][z].render();
+					if(terrain[x][y][z] != null) {
+						float[] a = terrain[x][y][z].getVertices();
+						numberOfFloats += a.length;
+						vertexArrays.add(a);
+					}
 				}
 			}
 		}
 		
-		GL11.glEndList();
+		// Create the buffer
+		vertexBuffer = BufferUtils.createFloatBuffer(numberOfFloats);
+		
+		for(float[] a : vertexArrays) {
+			vertexBuffer.put(a);
+		}
+		
+		vertexBuffer.flip();
+		
+		// Do the same with the normal buffer
+		List<float[]> normalArrays = new ArrayList<float[]>();
+		int numberOfFloatsNormals = 0;
+		
+		for(int z = 0; z < arraySize.z; z++) {
+			for(int x = 0; x < arraySize.x; x++) {
+				for(int y = 0; y < arraySize.y; y++) {
+					if(terrain[x][y][z] != null) {
+						float[] a = terrain[x][y][z].getNormals();
+						numberOfFloatsNormals += a.length;
+						normalArrays.add(a);
+					}
+				}
+			}
+		}
+	
+		normalBuffer = BufferUtils.createFloatBuffer(numberOfFloatsNormals);
+		
+		for(float[] a : normalArrays) {
+			normalBuffer.put(a);
+		}
+		
+		normalBuffer.flip();
+		
+		// Do the same with the color buffer
+		List<float[]> colorArrays = new ArrayList<float[]>();
+		int numberOfFloatsColors = 0;
+		
+		for(int z = 0; z < arraySize.z; z++) {
+			for(int x = 0; x < arraySize.x; x++) {
+				for(int y = 0; y < arraySize.y; y++) {
+					if(terrain[x][y][z] != null) {
+						float[] a = terrain[x][y][z].getColors();
+						numberOfFloatsColors += a.length;
+						colorArrays.add(a);
+					}
+				}
+			}
+		}
+	
+		colorBuffer = BufferUtils.createFloatBuffer(numberOfFloatsColors);
+		
+		for(float[] a : colorArrays) {
+			colorBuffer.put(a);
+		}
+		
+		colorBuffer.flip();
+		
+		// Do the same with the tex coords buffer
+		List<float[]> texArrays = new ArrayList<float[]>();
+		int numberOfFloatsTex = 0;
+		
+		for(int z = 0; z < arraySize.z; z++) {
+			for(int x = 0; x < arraySize.x; x++) {
+				for(int y = 0; y < arraySize.y; y++) {
+					if(terrain[x][y][z] != null) {
+						float[] a = terrain[x][y][z].getTexCoords();
+						numberOfFloatsTex += a.length;
+						texArrays.add(a);
+					}
+				}
+			}
+		}
+	
+		texCoordsBuffer = BufferUtils.createFloatBuffer(numberOfFloatsTex);
+		
+		for(float[] a : texArrays) {
+			texCoordsBuffer.put(a);
+		}
+		
+		texCoordsBuffer.flip();
 	}
 	
-	private Cube createCube(Vector3 arrayPosition, boolean textures) {
+	private Cube createCube(Vector3 arrayPosition, boolean useTextures) {
 		// Calculate the coordinates
 		Vector3f pos1 = new Vector3f(arrayPosition.x * cubeSize.x, arrayPosition.y * cubeSize.y, arrayPosition.z * cubeSize.z);
 		Vector3f pos2 = Vector3f.add(pos1, cubeSize);
 		
 		// Set texture depending on y
 		Vector4f color = null;
-		Texture texture = null;
+		Texture texture = textures;
+		Rectf texCoords = null;
 		
 		if(arrayPosition.y == 0) {
 			// Dirt
 			color = new Vector4f(0.35f, 0.15f, 0.0f, 1.0f);
-			texture = dirtTexture;
+			texCoords = new Rectf(0.25f, 0.0f, 0.5f, 1.0f);
 		} else if(arrayPosition.y < 3) {
 			// Water
 			color = new Vector4f(0.0f, 0.2f, 0.7f, 0.6f);
-			texture = waterTexture;
+			texCoords = new Rectf(0.75f, 0.0f, 1.0f, 1.0f);
 		} else if(arrayPosition.y < 6) {
 			// Grass
 			color = new Vector4f(0.2f, 0.4f, 0.1f, 1.0f);
-			texture = grassTexture;
+			texCoords = new Rectf(0.0f, 0.0f, 0.25f, 1.0f);
 		} else {
 			// Stone
 			color = new Vector4f(0.3f, 0.3f, 0.3f, 1.0f);
-			texture = stoneTexture;
+			texCoords = new Rectf(0.5f, 0.0f, 0.75f, 1.0f);
 		}
 		
-		if(!textures)
+		if(!useTextures)
 			texture = null;
 		
-		return new Cube(pos1, pos2, color, texture);
+		return new Cube(pos1, pos2, color, texture, texCoords);
 	}
 	
 	public void render() {
@@ -227,11 +307,36 @@ public class CubeTerrain {
 		// Add the translation matrix
 		GL11.glTranslatef(translation.x, translation.y, translation.z);
 		
-		// Call the display list
-		GL11.glCallList(displayList);
+		// Setup opengl
+		//GL11.glColorMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE);
+		//GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+		//GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
+		
+		GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+		GL11.glEnableClientState(GL11.GL_NORMAL_ARRAY);
+		
+		GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.getTextureID());
+		
+		GL11.glVertexPointer(3, 0, vertexBuffer);
+		GL11.glNormalPointer(0, normalBuffer);
+		//GL11.glColorPointer(4, 0, colorBuffer);
+		GL11.glTexCoordPointer(2, 0, texCoordsBuffer);
+		
+		GL11.glDrawArrays(GL11.GL_QUADS, 0, vertexBuffer.limit() / 3);
+		
+		GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+		GL11.glDisableClientState(GL11.GL_NORMAL_ARRAY);
+		GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		
+		//GL11.glDisableClientState(GL11.GL_COLOR_ARRAY);
+		//GL11.glDisable(GL11.GL_COLOR_MATERIAL);
 		
 		// Restore the matrix
 		GL11.glPopMatrix();
+		
 	}
 	
 	/* Returns true if there is a solid cube at the given coordinates. */
@@ -250,10 +355,6 @@ public class CubeTerrain {
 		}
 		
 		return false;
-	}
-	
-	public void release() {
-		GL11.glDeleteLists(displayList, 1);
 	}
 }
 
