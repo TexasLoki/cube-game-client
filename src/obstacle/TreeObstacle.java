@@ -2,13 +2,15 @@ package obstacle;
 
 import game.Cube;
 import game.CubeTerrain;
-import game.TextureStore;
+import game.Rectf;
 import game.Vector4f;
+
+import org.newdawn.slick.opengl.Texture;
 
 public class TreeObstacle extends Obstacle {
 
-	public TreeObstacle(CubeTerrain terrain, TextureStore textureStore) {
-		super(terrain, textureStore);
+	public TreeObstacle(CubeTerrain terrain, Texture cubeTextures) {
+		super(terrain, cubeTextures);
 	}
 	
 	public void createTree(boolean textures) {
@@ -31,7 +33,7 @@ public class TreeObstacle extends Obstacle {
 		for(int x = 0; x < xLength; x++) {
 			for(int y = yLength/2; y < yLength -1; y++) {
 				for(int z = 0; z < zLength; z++) {
-					obstacleArray[x][y][z] = new Cube(null, null, new Vector4f(0.0f, 0.25f, 0.06f, 1.0f), null, null);
+					obstacleArray[x][y][z] = new Cube(null, null, new Vector4f(0.0f, 0.25f, 0.06f, 1.0f), cubeTextures, new Rectf(4/16f, 0/16f, 5/16f, 1/16f));
 				}
 			}
 		}	
@@ -39,7 +41,7 @@ public class TreeObstacle extends Obstacle {
 		for(int x = 1; x < xLength - 1; x++) {
 			for(int y = yLength - 1; y < yLength; y++) {
 				for(int z = 1; z < zLength - 1; z++) {
-					obstacleArray[x][y][z] = new Cube(null, null, new Vector4f(0.0f, 0.25f, 0.06f, 1.0f), null, null);
+					obstacleArray[x][y][z] = new Cube(null, null, new Vector4f(0.0f, 0.25f, 0.06f, 1.0f), cubeTextures, new Rectf(4/16f, 0/16f, 5/16f, 1/16f));
 				}
 			}
 		}
@@ -54,7 +56,7 @@ public class TreeObstacle extends Obstacle {
 		
 		// Create stem
 		for(int y = 0; y < yLength - 1; y++ ) {
-			obstacleArray[xLength/2][y][zLength/2] = new Cube(null, null, new Vector4f(0.25f, 0.125f, 0.0f, 1.0f), null, null);
+			obstacleArray[xLength/2][y][zLength/2] = new Cube(null, null, new Vector4f(0.25f, 0.125f, 0.0f, 1.0f), cubeTextures, new Rectf(5/16f, 0/16f, 6/16f, 1/16f));
 		}
 		
 	}

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import obstacle.TreeObstacle;
+
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
@@ -52,7 +54,7 @@ public class CubeTerrain {
 		textures = textureStore.getTexture("res/cube_textures.png");
 	}
 	
-	public void generateTerrain(int maxHeight, int minHeight, int smoothLevel, int seed, float noiseSize, float persistence, int octaves, boolean textures) {
+	public void generateTerrain(int maxHeight, int minHeight, int smoothLevel, int seed, float noiseSize, float persistence, int octaves, boolean useTextures) {
 		// Stores the height of each x, z coordinate
 		int heightData[][] = new int[arraySize.x][arraySize.z];
 		
@@ -114,17 +116,16 @@ public class CubeTerrain {
 		for(int z = 0; z < arraySize.z; z++) {
 			for(int x = 0; x < arraySize.x; x++) {
 					for(int y = heightData[x][z]; y >= 0; y--) {
-						terrain[x][y][z] = createCube(new Vector3(x, y, z), textures);
+						terrain[x][y][z] = createCube(new Vector3(x, y, z), useTextures);
 					}
 			}
 		}
 		
 		Random rand = new Random();
 		
-		/*
 		// Create tree obstacles
-		TreeObstacle treeGen = new TreeObstacle(this, textureStore);
-		int treeCount = 5;
+		TreeObstacle treeGen = new TreeObstacle(this, textures);
+		int treeCount = 10;
 		
 		for(int treeIndex = 0; treeIndex < treeCount; treeIndex++) {
 			// Select a random position on the terrain
@@ -133,11 +134,12 @@ public class CubeTerrain {
 			int y = heightData[x][z];
 			
 			// Create the tree
-			treeGen.createTree(textures);
+			treeGen.createTree(useTextures);
 			treeGen.placeObstacle(new Vector3(x, y, z), false);
 		}
 		
 		// Create spruce obstacles
+		/*
 		SpruceObstacle spruceGen = new SpruceObstacle(this, textureStore);
 		int spruceCount = 5;
 		

@@ -2,13 +2,14 @@ package obstacle;
 
 import game.Cube;
 import game.CubeTerrain;
-import game.TextureStore;
 import game.Vector4f;
+
+import org.newdawn.slick.opengl.Texture;
 
 public class SpruceObstacle extends Obstacle {
 
-	public SpruceObstacle(CubeTerrain terrain, TextureStore textureStore) {
-		super(terrain, textureStore);
+	public SpruceObstacle(CubeTerrain terrain, Texture cubeTextures) {
+		super(terrain, cubeTextures);
 	}
 	
 	public void createSpruce(boolean textures) {

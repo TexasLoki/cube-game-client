@@ -2,20 +2,21 @@ package obstacle;
 
 import game.Cube;
 import game.CubeTerrain;
-import game.TextureStore;
 import game.Vector3;
 import game.Vector3f;
+
+import org.newdawn.slick.opengl.Texture;
 
 public abstract class Obstacle {
 
 	protected CubeTerrain terrain;
-	protected TextureStore textureStore;
+	protected Texture cubeTextures;
 	protected Cube[][][] obstacleArray;
 	protected int xLength, yLength, zLength;
 	
-	public Obstacle(CubeTerrain terrain, TextureStore textureStore) {
+	public Obstacle(CubeTerrain terrain, Texture cubeTextures) {
 		this.terrain = terrain;
-		this.textureStore = textureStore;
+		this.cubeTextures = cubeTextures;
 	}
 	
 	public boolean placeObstacle(Vector3 position, boolean spaceMustBeEmpty) {
