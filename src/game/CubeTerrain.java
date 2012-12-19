@@ -52,27 +52,25 @@ public class CubeTerrain {
 		textures = textureStore.getTexture("res/cube_textures.png");
 	}
 	
-	public void generateTerrain(int maxHeight, int minHeight, int smoothLevel, int seed, float noiseSize, float persistence, int octaves, boolean useTextures) {
+	public void generateTerrain(int maxHeight, int smoothLevel, long seed, boolean useTextures) {
 		// Stores the height of each x, z coordinate
 		int heightData[][] = new int[arraySize.x][arraySize.z];
 		
-		// Make sure maxHeight and minHeight are within bounds of the cube array
+		// Make sure maxHeight is within bounds of the cube array
 		if(maxHeight > arraySize.y)
 			maxHeight = arraySize.y;
 		
 		if(maxHeight < 0)
 			maxHeight = 0;
 		
-		if(minHeight > arraySize.y)
-			minHeight = arraySize.y;
 		
-		if(minHeight < 0)
-			minHeight = 0;
+		// Randomize the heights using Simplex 2D noise
+		SimplexNoise.genGrad(seed);
+		float res = 128.0f;
 		
-		// Randomize the heights using Perlin noise
 		for(int z = 0; z < arraySize.z; z++) {
 			for(int x = 0; x < arraySize.x; x++) {
-					heightData[x][z] = (int) (PerlinNoise2D.perlin2D(x, z, arraySize.x, arraySize.z, seed, 100.0f, 0.0001f, octaves) * (maxHeight - minHeight) + minHeight);
+					heightData[x][z] = (int) (((SimplexNoise.noise(x / res, z / res) + 1.0f) / 2.0f) * maxHeight); 
 			}
 		}
 		
@@ -119,37 +117,39 @@ public class CubeTerrain {
 			}
 		}
 		
-		Random rand = new Random();
+		Random rand = new Random(seed);
+		int genX, genY, genZ;
 		
 		// Create tree obstacles
 		TreeObstacle treeGen = new TreeObstacle(this, textures);
-		int treeCount = 100;
+		treeGen.createTree(useTextures);
+		int treeCount = 15;
 		
 		for(int treeIndex = 0; treeIndex < treeCount; treeIndex++) {
-			// Select a random position on the terrain
-			int x = rand.nextInt(arraySize.x);
-			int z = rand.nextInt(arraySize.z);
-			int y = heightData[x][z];
-			
+			do {
+				// Select a random position on the terrain
+				genX = rand.nextInt(arraySize.x);
+				genZ = rand.nextInt(arraySize.z);
+				genY = heightData[genX][genZ];
 			// Create the tree
-			treeGen.createTree(useTextures);
-			treeGen.placeObstacle(new Vector3(x, y, z), false);
+			} while(!treeGen.placeObstacle(new Vector3(genX, genY, genZ), true));
 		}
 		
 		// Create spruce obstacles
 		
 		SpruceObstacle spruceGen = new SpruceObstacle(this, textures);
+		spruceGen.createSpruce(useTextures);
+		
 		int spruceCount = 15;
 		
 		for(int spruceIndex = 0; spruceIndex < spruceCount; spruceIndex++) {
-			// Select a random position on the terrain
-			int x = rand.nextInt(arraySize.x);
-			int z = rand.nextInt(arraySize.z);
-			int y = heightData[x][z];
-			
-			// Create the spruce
-			spruceGen.createSpruce(useTextures);
-			spruceGen.placeObstacle(new Vector3(x, y, z), false);
+			do {
+				// Select a random position on the terrain
+				genX = rand.nextInt(arraySize.x);
+				genZ = rand.nextInt(arraySize.z);
+				genY = heightData[genX][genZ];
+			// Create the tree
+			} while(!spruceGen.placeObstacle(new Vector3(genX, genY, genZ), true));
 		}
 		
 		// Calculate which sides each cube needs to render
@@ -283,18 +283,19 @@ public class CubeTerrain {
 			// Dirt
 			color = new Vector4f(0.35f, 0.15f, 0.0f, 1.0f);
 			texCoords = new Rectf(1/16f, 0/16f, 2/16f, 1/16f);
-		} else if(arrayPosition.y < 3) {
-			// Water
-			color = new Vector4f(0.0f, 0.2f, 0.7f, 0.6f);
-			texCoords = new Rectf(3/16f, 0/16f, 4/16f, 1/16f);
-		} else if(arrayPosition.y < 6) {
-			// Grass
-			color = new Vector4f(0.2f, 0.4f, 0.1f, 1.0f);
-			texCoords = new Rectf(0/16f, 0/16f, 1/16f, 1/16f);
-		} else {
+		} else if(arrayPosition.y < 5) {
 			// Stone
 			color = new Vector4f(0.3f, 0.3f, 0.3f, 1.0f);
 			texCoords = new Rectf(2/16f, 0/16f, 3/16f, 1/16f);
+		} else if(arrayPosition.y < 10) {
+			// Water
+			color = new Vector4f(0.0f, 0.2f, 0.7f, 0.6f);
+			texCoords = new Rectf(3/16f, 0/16f, 4/16f, 1/16f);
+			
+		} else {
+			// Grass
+			color = new Vector4f(0.2f, 0.4f, 0.1f, 1.0f);
+			texCoords = new Rectf(0/16f, 0/16f, 1/16f, 1/16f);
 		}
 		
 		if(!useTextures)

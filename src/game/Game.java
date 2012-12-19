@@ -49,19 +49,14 @@ public class Game {
 		textureStore = new TextureStore();
 		
 		// Generate the terrain
-		terrain = new CubeTerrain(new Vector3(150, 50, 150), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(-25.0f, -40.0f, -25.0f), textureStore);
+		terrain = new CubeTerrain(new Vector3(150, 100, 150), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(-25.0f, -40.0f, -25.0f), textureStore);
 		
-		final int TERRAIN_MAX_HEIGHT = 20;
-		final int TERRAIN_MIN_HEIGHT = 3;
-		final int TERRAIN_SMOOTH_LEVEL = 5;
-		
+		final int TERRAIN_MAX_HEIGHT = 50;
+		final int TERRAIN_SMOOTH_LEVEL = 0;
 		final int TERRAIN_GEN_SEED = 0;
-		final float TERRAIN_GEN_NOISE_SIZE = 1.0f;
-		final float TERRAIN_GEN_PERSISTENCE = 0.75f;
-		final int TERRAIN_GEN_OCTAVES = 5;
 		
-		terrain.generateTerrain(TERRAIN_MAX_HEIGHT, TERRAIN_MIN_HEIGHT, TERRAIN_SMOOTH_LEVEL,
-								TERRAIN_GEN_SEED, TERRAIN_GEN_NOISE_SIZE, TERRAIN_GEN_PERSISTENCE, TERRAIN_GEN_OCTAVES, TEXTURES);
+		terrain.generateTerrain(TERRAIN_MAX_HEIGHT, TERRAIN_SMOOTH_LEVEL,
+								TERRAIN_GEN_SEED, TEXTURES);
 		
 		// Create the camera
 		camera = new Camera(new Vector3f(0.0f, 2.0f, 20.0f), new Vector3f(0.0f, 0.0f, 0.0f), terrain);
