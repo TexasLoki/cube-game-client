@@ -8,7 +8,7 @@ public class Profiling {
 	private long frameBeginTime = 0;
 	private long frameEndTime = 0;
 	
-	private static final boolean PRINT = true;
+	private static final boolean PRINT = false;
 	
 	private List<ProfilingPart> parts = new LinkedList<ProfilingPart>();
 	

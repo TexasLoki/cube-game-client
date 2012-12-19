@@ -123,7 +123,7 @@ public class CubeTerrain {
 		// Create tree obstacles
 		TreeObstacle treeGen = new TreeObstacle(this, textures);
 		treeGen.createTree(useTextures);
-		int treeCount = 15;
+		int treeCount = 25;
 		
 		for(int treeIndex = 0; treeIndex < treeCount; treeIndex++) {
 			do {
@@ -136,7 +136,6 @@ public class CubeTerrain {
 		}
 		
 		// Create spruce obstacles
-		
 		SpruceObstacle spruceGen = new SpruceObstacle(this, textures);
 		spruceGen.createSpruce(useTextures);
 		

@@ -43,7 +43,7 @@ public abstract class Obstacle {
 				for(int y = 0; y < yLength; y++) {
 					for(int z = 0; z < zLength; z++) {
 						if(obstacleArray[x][y][z] != null) {
-							terrain.terrain[position.x + x][position.y + y][position.z + z] = obstacleArray[x][y][z];
+							terrain.terrain[position.x + x][position.y + y][position.z + z] = new Cube(null, null, obstacleArray[x][y][z].color, obstacleArray[x][y][z].texture, obstacleArray[x][y][z].texRect);
 							terrain.terrain[position.x + x][position.y + y][position.z + z].pos1 = new Vector3f((position.x + x) * terrain.cubeSize.x, (position.y + y) * terrain.cubeSize.y, (position.z + z) * terrain.cubeSize.z);
 							terrain.terrain[position.x + x][position.y + y][position.z + z].pos2 = Vector3f.add(terrain.terrain[position.x + x][position.y + y][position.z + z].pos1, terrain.cubeSize);
 						}
