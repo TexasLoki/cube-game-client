@@ -33,6 +33,8 @@ public class CubeTerrain {
 	private FloatBuffer colorBuffer;
 	private FloatBuffer texCoordsBuffer;
 	
+	private boolean useTextures;
+	
 	public CubeTerrain(Vector3 arraySize, Vector3f cubeSize, Vector3f translation, TextureStore textureStore) {
 		this.arraySize = arraySize;
 		this.cubeSize = cubeSize;
@@ -53,6 +55,8 @@ public class CubeTerrain {
 	}
 	
 	public void generateTerrain(int maxHeight, int smoothLevel, long seed, boolean useTextures) {
+		this.useTextures = useTextures;
+		
 		// Stores the height of each x, z coordinate
 		int heightData[][] = new int[arraySize.x][arraySize.z];
 		
@@ -106,6 +110,14 @@ public class CubeTerrain {
 			}
 			
 			smoothLevel--;
+		}
+		
+		// Set minimum level to water level
+		for(int z = 0; z < arraySize.z; z++) {
+			for(int x = 0; x < arraySize.x; x++) {
+						if(heightData[x][z] < 9)
+							heightData[x][z] = 9;
+			}
 		}
 		
 		// Create the cubes
@@ -162,7 +174,6 @@ public class CubeTerrain {
 						boolean renderBack = (z == 0) || (terrain[x][y][z - 1] == null);
 						boolean renderRight = (x == arraySize.x - 1) || (terrain[x + 1][y][z] == null);
 						boolean renderLeft = (x == 0) || (terrain[x - 1][y][z] == null);
-						
 						
 						terrain[x][y][z].setVisibleSides(renderTop, renderBottom, renderFront, renderBack, renderRight, renderLeft);
 					}
@@ -293,12 +304,9 @@ public class CubeTerrain {
 			
 		} else {
 			// Grass
-			color = new Vector4f(0.2f, 0.4f, 0.1f, 1.0f);
+			color = new Vector4f(0.0f, 0.3f, 0.00f, 1.0f);
 			texCoords = new Rectf(0/16f, 0/16f, 1/16f, 1/16f);
 		}
-		
-		if(!useTextures)
-			texture = null;
 		
 		return new Cube(pos1, pos2, color, texture, texCoords);
 	}
@@ -310,32 +318,46 @@ public class CubeTerrain {
 		// Add the translation matrix
 		GL11.glTranslatef(translation.x, translation.y, translation.z);
 		
-		// Setup opengl
-		//GL11.glColorMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE);
-		//GL11.glEnable(GL11.GL_COLOR_MATERIAL);
-		//GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
+		if(!useTextures) {
+			// Setup opengl
+			GL11.glColorMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE);
+			GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+			GL11.glEnableClientState(GL11.GL_COLOR_ARRAY);
+		}
 		
 		GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
 		GL11.glEnableClientState(GL11.GL_NORMAL_ARRAY);
 		
-		GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.getTextureID());
+		if(useTextures) {
+			GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.getTextureID());
+		}
 		
 		GL11.glVertexPointer(3, 0, vertexBuffer);
 		GL11.glNormalPointer(0, normalBuffer);
-		//GL11.glColorPointer(4, 0, colorBuffer);
-		GL11.glTexCoordPointer(2, 0, texCoordsBuffer);
+		
+		if(!useTextures)
+			GL11.glColorPointer(4, 0, colorBuffer);
+		
+		if(useTextures)
+			GL11.glTexCoordPointer(2, 0, texCoordsBuffer);
 		
 		GL11.glDrawArrays(GL11.GL_QUADS, 0, vertexBuffer.limit() / 3);
 		
 		GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
 		GL11.glDisableClientState(GL11.GL_NORMAL_ARRAY);
-		GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		
-		//GL11.glDisableClientState(GL11.GL_COLOR_ARRAY);
-		//GL11.glDisable(GL11.GL_COLOR_MATERIAL);
+		if(useTextures) {
+			
+			GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+		}
+		
+		if(!useTextures) {
+			GL11.glDisableClientState(GL11.GL_COLOR_ARRAY);
+			GL11.glDisable(GL11.GL_COLOR_MATERIAL);
+		}
 		
 		// Restore the matrix
 		GL11.glPopMatrix();
@@ -358,6 +380,10 @@ public class CubeTerrain {
 		}
 		
 		return false;
+	}
+	
+	public void setUseTextures(boolean useTextures) {
+		this.useTextures = useTextures;
 	}
 }
 

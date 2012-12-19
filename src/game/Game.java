@@ -22,7 +22,8 @@ public class Game {
 	private static final float FALSE_GRAVITY_SPEED = 8.0f;
 	private static final boolean FULLSCREEN = true;
 	private static final boolean VSYNC = true;
-	private static final boolean TEXTURES = true;
+	
+	private boolean TEXTURES = true;
 	
 	// Game components
 	private Camera camera;
@@ -49,17 +50,17 @@ public class Game {
 		textureStore = new TextureStore();
 		
 		// Generate the terrain
-		terrain = new CubeTerrain(new Vector3(150, 100, 150), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(-25.0f, -40.0f, -25.0f), textureStore);
+		terrain = new CubeTerrain(new Vector3(200, 100, 200), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(-25.0f, -40.0f, -25.0f), textureStore);
 		
-		final int TERRAIN_MAX_HEIGHT = 50;
+		final int TERRAIN_MAX_HEIGHT = 40;
 		final int TERRAIN_SMOOTH_LEVEL = 0;
-		final int TERRAIN_GEN_SEED = 0;
+		final long TERRAIN_GEN_SEED = 2;
 		
 		terrain.generateTerrain(TERRAIN_MAX_HEIGHT, TERRAIN_SMOOTH_LEVEL,
 								TERRAIN_GEN_SEED, TEXTURES);
 		
 		// Create the camera
-		camera = new Camera(new Vector3f(0.0f, 2.0f, 20.0f), new Vector3f(0.0f, 0.0f, 0.0f), terrain);
+		camera = new Camera(new Vector3f(0.0f, 50.0f, 0.0f), new Vector3f(-20.0f, -135.0f, 0.0f), terrain);
 			
 		// Main loop
 		long lastFrame = System.currentTimeMillis();
@@ -120,7 +121,7 @@ public class Game {
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		
-		GLU.gluPerspective(45.0f, (float)width / (float)height, 0.1f, 200.0f);
+		GLU.gluPerspective(45.0f, (float)width / (float)height, 0.1f, 500.0f);
 		
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
@@ -197,6 +198,9 @@ public class Game {
 				    	doCollisionChecking = !doCollisionChecking;
 				} else if (Keyboard.getEventKey() == Keyboard.KEY_V) {
 				    	wireframe = !wireframe;
+				} else if (Keyboard.getEventKey() == Keyboard.KEY_T) {
+						TEXTURES = !TEXTURES;
+						terrain.setUseTextures(TEXTURES);
 				}
 			}
 		}
