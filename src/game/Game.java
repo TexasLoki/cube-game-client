@@ -8,6 +8,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.glu.GLU;
 
 import profiling.Profiling;
@@ -108,7 +109,7 @@ public class Game {
 			Display.setDisplayMode(Display.getDesktopDisplayMode());
 			Display.setFullscreen(FULLSCREEN);
 			Display.setVSyncEnabled(VSYNC);
-			Display.create();
+			Display.create(new PixelFormat().withDepthBits(24).withSamples(4).withSRGB(true));
 		} catch(LWJGLException e) {
 			e.printStackTrace();
 			System.exit(0);
@@ -121,7 +122,7 @@ public class Game {
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		
-		GLU.gluPerspective(45.0f, (float)width / (float)height, 0.1f, 500.0f);
+		GLU.gluPerspective(45.0f, (float)width / (float)height, 1.000000f, 300.0f);
 		
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
@@ -130,9 +131,7 @@ public class Game {
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glEnable(GL11.GL_LIGHTING);
-		
 		GL11.glShadeModel(GL11.GL_SMOOTH); 
-		
 		GL11.glBlendFunc (GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable(GL11.GL_BLEND);
 		

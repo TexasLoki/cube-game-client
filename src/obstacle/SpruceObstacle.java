@@ -2,7 +2,7 @@ package obstacle;
 
 import game.Cube;
 import game.CubeTerrain;
-import game.Rectf;
+import game.TextureStore;
 import game.Vector4f;
 
 import org.newdawn.slick.opengl.Texture;
@@ -33,7 +33,7 @@ public class SpruceObstacle extends Obstacle {
 		for(int y = stemHeight; y < stemHeight + crownHeightPerLevel; y++) {
 			for(int x = 0; x < stemThickness; x++) {
 				for(int z = 0; z < stemThickness; z++) {
-					obstacleArray[(xLength - stemThickness) / 2 + x][y][(zLength - stemThickness) / 2 + z] = new Cube(null, null, new Vector4f(0.0f, 0.20f, 0.04f, 1.0f), cubeTextures, new Rectf(6/16f, 0/16f, 7/16f, 1/16f));
+					obstacleArray[(xLength - stemThickness) / 2 + x][y][(zLength - stemThickness) / 2 + z] = new Cube(null, null, new Vector4f(0.0f, 0.20f, 0.04f, 1.0f), cubeTextures, TextureStore.getTexRect(0, 13));
 				}
 			}
 		}
@@ -43,7 +43,7 @@ public class SpruceObstacle extends Obstacle {
 			
 			for(int x = 0; x < rectSize; x++) {
 				for(int z = 0; z < rectSize; z++) {
-					obstacleArray[(xLength - rectSize) / 2 + x][y][(zLength - rectSize) / 2 + z] = new Cube(null, null, new Vector4f(0.0f, 0.20f, 0.04f, 1.0f), cubeTextures, new Rectf(6/16f, 0/16f, 7/16f, 1/16f));
+					obstacleArray[(xLength - rectSize) / 2 + x][y][(zLength - rectSize) / 2 + z] = new Cube(null, null, new Vector4f(0.0f, 0.20f, 0.04f, 1.0f), cubeTextures, TextureStore.getTexRect(0, 13));
 				}
 			}
 			
@@ -53,7 +53,7 @@ public class SpruceObstacle extends Obstacle {
 		for(int y = 0; y < stemHeight; y++) {
 			for(int x = 0; x < stemThickness; x++) {
 				for(int z = 0; z < stemThickness; z++) {
-					obstacleArray[(xLength - stemThickness) / 2 + x][y][(zLength - stemThickness) / 2 + z] = new Cube(null, null, new Vector4f(0.25f, 0.125f, 0.0f, 1.0f), cubeTextures, new Rectf(7/16f, 0/16f, 8/16f, 1/16f));
+					obstacleArray[(xLength - stemThickness) / 2 + x][y][(zLength - stemThickness) / 2 + z] = new Cube(null, null, new Vector4f(0.25f, 0.125f, 0.0f, 1.0f), cubeTextures, TextureStore.getTexRect(1, 13));
 				}
 			}
 			

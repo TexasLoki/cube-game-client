@@ -292,20 +292,20 @@ public class CubeTerrain {
 		if(arrayPosition.y == 0) {
 			// Dirt
 			color = new Vector4f(0.35f, 0.15f, 0.0f, 1.0f);
-			texCoords = new Rectf(1/16f, 0/16f, 2/16f, 1/16f);
+			texCoords = TextureStore.getTexRect(0, 1);
 		} else if(arrayPosition.y < 5) {
 			// Stone
 			color = new Vector4f(0.3f, 0.3f, 0.3f, 1.0f);
-			texCoords = new Rectf(2/16f, 0/16f, 3/16f, 1/16f);
+			texCoords = TextureStore.getTexRect(0, 2);
 		} else if(arrayPosition.y < 10) {
 			// Water
 			color = new Vector4f(0.0f, 0.2f, 0.7f, 0.6f);
-			texCoords = new Rectf(3/16f, 0/16f, 4/16f, 1/16f);
+			texCoords = TextureStore.getTexRect(0, 3);
 			
 		} else {
 			// Grass
 			color = new Vector4f(0.0f, 0.3f, 0.00f, 1.0f);
-			texCoords = new Rectf(0/16f, 0/16f, 1/16f, 1/16f);
+			texCoords = TextureStore.getTexRect(0, 0);
 		}
 		
 		return new Cube(pos1, pos2, color, texture, texCoords);

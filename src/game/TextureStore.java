@@ -62,4 +62,14 @@ public class TextureStore {
 		
 		MipMap.gluBuild2DMipmaps(GL11.GL_TEXTURE_2D, components, width, height, components==3 ? GL11.GL_RGB : GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE,texdata);
 	}
+	
+	static float CUBE_TEXTUREMAP_WIDTH = 4096;
+	
+	public static Rectf getTexRect(int x, int y) {
+		float pixelX = (x + 1) * 2 + x * 256;
+		float pixelY = (y + 1) * 2 + y * 256;
+		
+		return new Rectf(pixelX / CUBE_TEXTUREMAP_WIDTH, pixelY / CUBE_TEXTUREMAP_WIDTH, (pixelX + 255) / CUBE_TEXTUREMAP_WIDTH, (pixelY + 255) / CUBE_TEXTUREMAP_WIDTH);
+		
+	}
 }
