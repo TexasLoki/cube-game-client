@@ -13,6 +13,7 @@ import org.lwjgl.util.glu.GLU;
 
 import profiling.Profiling;
 import profiling.ProfilingPart;
+import terrain.CubeTerrain;
 
 
 public class Game {
@@ -51,14 +52,15 @@ public class Game {
 		textureStore = new TextureStore();
 		
 		// Generate the terrain
-		terrain = new CubeTerrain(new Vector3(200, 100, 200), new Vector3f(1.0f, 1.0f, 1.0f), new Vector3f(-25.0f, -40.0f, -25.0f), textureStore);
+		terrain = new CubeTerrain(new Vector3f(-25.0f, -40.0f, -25.0f), new Vector3(16, 1, 16), new Vector3(16, 50, 16), new Vector3f(1.0f, 1.0f, 1.0f), TEXTURES, textureStore);
 		
+		final int TERRAIN_MIN_HEIGHT = 0;
 		final int TERRAIN_MAX_HEIGHT = 40;
-		final int TERRAIN_SMOOTH_LEVEL = 0;
+		final float TERRAIN_GEN_RESOLUTION = 128.0f;
 		final long TERRAIN_GEN_SEED = 2;
 		
-		terrain.generateTerrain(TERRAIN_MAX_HEIGHT, TERRAIN_SMOOTH_LEVEL,
-								TERRAIN_GEN_SEED, TEXTURES);
+		terrain.generateTerrain(TERRAIN_MIN_HEIGHT, TERRAIN_MAX_HEIGHT, TERRAIN_GEN_RESOLUTION,
+								TERRAIN_GEN_SEED);
 		
 		// Create the camera
 		camera = new Camera(new Vector3f(0.0f, 50.0f, 0.0f), new Vector3f(-20.0f, -135.0f, 0.0f), terrain);

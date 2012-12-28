@@ -1,6 +1,8 @@
 package game;
 import org.lwjgl.opengl.GL11;
 
+import terrain.CubeTerrain;
+
 
 public class Camera {
 
