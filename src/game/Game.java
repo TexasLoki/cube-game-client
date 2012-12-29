@@ -10,6 +10,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.glu.GLU;
+import org.newdawn.slick.opengl.Texture;
 
 import profiling.Profiling;
 import profiling.ProfilingPart;
@@ -26,6 +27,9 @@ public class Game {
 	private static final boolean VSYNC = true;
 	
 	private boolean TEXTURES = true;
+	
+	private int width;
+	private int height;
 	
 	// Game components
 	private Camera camera;
@@ -44,12 +48,17 @@ public class Game {
 	private ProfilingPart renderFunction = new ProfilingPart("Render");
 	private ProfilingPart updateFunction = new ProfilingPart("Update");
 	
+	// Camera block distance
+	private float distance;
+	private Texture crossHairTexture;
+	
 	public void start() {
 		// Initialize OpenGL and LWJGL stuff
 		init();
 		
 		// Create the texture store
 		textureStore = new TextureStore();
+		crossHairTexture = textureStore.getTexture("res/crosshair.png");
 		
 		// Generate the terrain
 		terrain = new CubeTerrain(new Vector3f(-25.0f, -40.0f, -25.0f), new Vector3(16, 1, 16), new Vector3(16, 50, 16), new Vector3f(1.0f, 1.0f, 1.0f), TEXTURES, textureStore);
@@ -96,7 +105,7 @@ public class Game {
 			
 			// Set title to debug info
 			Display.setTitle("x: " + (int)camera.coordinates.x + " y: " + (int)camera.coordinates.y + " z: " + (int)camera.coordinates.z +
-					" xRot: " + (int)camera.rotation.x + " yRot: " + (int)camera.rotation.y + " zRot: " + camera.rotation.z + " FPS: " + Math.round(profiling.fps()));
+					" xRot: " + (int)camera.rotation.x + " yRot: " + (int)camera.rotation.y + " zRot: " + camera.rotation.z + " FPS: " + Math.round(profiling.fps()) + " DISTANCE: " + distance);
 
 			lastFrame = t;
 		}
@@ -108,6 +117,9 @@ public class Game {
 	public void init() {
 		// Create the display
 		try {
+			width = Display.getDesktopDisplayMode().getWidth();
+			height = Display.getDesktopDisplayMode().getHeight();
+			
 			Display.setDisplayMode(Display.getDesktopDisplayMode());
 			Display.setFullscreen(FULLSCREEN);
 			Display.setVSyncEnabled(VSYNC);
@@ -150,11 +162,44 @@ public class Game {
 		Mouse.setGrabbed(true);
 	}
 	
+	public void opengl2D() {
+		// Disable 3D things
+		GL11.glDisable(GL11.GL_DEPTH_TEST);
+		GL11.glDisable(GL11.GL_LIGHTING);
+		
+		// Set 2D
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		GL11.glLoadIdentity();
+		
+		GLU.gluOrtho2D( 0, width, height, 0 );
+		
+		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+		GL11.glLoadIdentity();
+	}
+	
+	public void opengl3D() {
+		// Set 3D
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		GL11.glLoadIdentity();
+		
+		GLU.gluPerspective(45.0f, (float)width / (float)height, 1.000000f, 300.0f);
+		
+		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+		GL11.glLoadIdentity();
+		
+		// Enable 3D things
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		GL11.glEnable(GL11.GL_LIGHTING);
+	}
+	
 	public void render() {
 		// Clear the screen
 		GL11.glClearColor(0.25f, 0.8f, 1.0f, 1.0f);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glLoadIdentity();
+		
+		// 3D
+		opengl3D();
 		
 		if(wireframe)
 			GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
@@ -166,6 +211,35 @@ public class Game {
 		
 		// Render the terrain
 		terrain.render();
+		
+		
+		opengl2D();
+
+		// Draw the crosshair
+		int crossX = (int) (width / 2 - crossHairTexture.getImageWidth() / 2);
+		int crossY = (int) (height / 2 - crossHairTexture.getImageHeight() / 2);
+		
+		
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glBindTexture(GL11.GL_TEXTURE_2D, crossHairTexture.getTextureID());
+		
+		GL11.glBegin(GL11.GL_QUADS);
+		
+		GL11.glTexCoord2f(0, 0); 
+		GL11.glVertex2f(crossX, crossY);
+		
+		GL11.glTexCoord2f(0, 1); 
+		GL11.glVertex2f(crossX, crossY + crossHairTexture.getImageHeight());
+		
+		GL11.glTexCoord2f(1, 1); 
+		GL11.glVertex2f(crossX + crossHairTexture.getImageWidth(), crossY + crossHairTexture.getImageHeight());
+		
+		GL11.glTexCoord2f(1, 0); 
+		GL11.glVertex2f(crossX + crossHairTexture.getImageWidth(), crossY);
+		
+		GL11.glEnd();
+		
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
 	}
 	
 	public void update(float deltaTime) {
@@ -209,6 +283,35 @@ public class Game {
 		// Apply gravity
 		if(!flyMode)
 			camera.move(0, Camera.FORWARD, deltaTime * FALSE_GRAVITY_SPEED, doCollisionChecking, flyMode);
+		
+		// Find the block the user is looking at
+		float step = 0.01f;
+		
+		float xLook = camera.coordinates.x / terrain.cubeSize.x;
+		float yLook = camera.coordinates.y / terrain.cubeSize.y;
+		float zLook = camera.coordinates.z / terrain.cubeSize.z;
+		
+		float xSpeed = (float) (Math.cos(Math.toRadians(camera.rotation.x)) * -Math.sin(Math.toRadians(camera.rotation.y)) * 1) * step;
+		float ySpeed = (float) (Math.sin(Math.toRadians(camera.rotation.x))) * step;
+		float zSpeed = (float) (Math.cos(Math.toRadians(camera.rotation.x)) * -Math.cos(Math.toRadians(camera.rotation.y)) * 1) * step;
+		
+		distance = 0.0f;
+		while(distance < 20.0f) {
+			if(terrain.solidAt(new Vector3f(xLook, yLook, zLook))) {
+				if(Mouse.isButtonDown(0)) {
+					terrain.setCube(new Vector3f(xLook, yLook, zLook), null);
+				}
+					
+				break;
+			}
+			
+			xLook += xSpeed;
+			yLook += ySpeed;
+			zLook += zSpeed;
+			
+			distance += step;
+		}
+		
 	}
 	
 	public static void main(String[] args) {

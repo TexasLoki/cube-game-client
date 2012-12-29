@@ -207,6 +207,26 @@ public class CubeTerrain {
 		return false;
 	}
 	
+	public void setCube(Vector3f coordinates, Cube cube) {
+		// Get the cube coordinates in the array
+		Vector3 cubeCoordinates = new Vector3((int)((coordinates.x - translation.x) / cubeSize.x), (int)((coordinates.y - translation.y) / cubeSize.y), (int)((coordinates.z - translation.z) / cubeSize.z));
+		
+		// Is this within the chunk bounds?
+		if(cubeCoordinates.x >= 0 && cubeCoordinates.x < chunks.x * chunkSize.x &&
+			cubeCoordinates.y >= 0 && cubeCoordinates.y < chunks.y * chunkSize.y &&
+			cubeCoordinates.z >= 0 && cubeCoordinates.z < chunks.z * chunkSize.z) {
+			// Calculate which chunk this belongs to
+			Vector3 chunkCoordinates = new Vector3(cubeCoordinates.x / chunkSize.x, cubeCoordinates.y / chunkSize.y, cubeCoordinates.z / chunkSize.z);
+			TerrainChunk chunk = chunkArray[chunkCoordinates.x][chunkCoordinates.y][chunkCoordinates.z];
+			
+			// Put block
+			chunk.cubes[cubeCoordinates.x - chunkCoordinates.x * chunkSize.x][cubeCoordinates.y - chunkCoordinates.y * chunkSize.y][cubeCoordinates.z - chunkCoordinates.z * chunkSize.z] = cube;
+			
+			// Rebuild render data for the chunk
+			chunk.buildRenderData();
+		}
+	}
+	
 	public void setUseTextures(boolean useTextures) {
 		this.drawTextures = useTextures;
 	}
