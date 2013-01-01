@@ -1,7 +1,8 @@
 package game;
 import org.lwjgl.opengl.GL11;
 
-import terrain.CubeTerrain;
+import terrain.Terrain;
+import types.Vector3f;
 
 
 public class Camera {
@@ -14,9 +15,9 @@ public class Camera {
 	public Vector3f coordinates;
 	public Vector3f rotation;
 	
-	private CubeTerrain terrain;
+	private Terrain terrain;
 	
-	public Camera(Vector3f coordinates, Vector3f rotation, CubeTerrain terrain) {
+	public Camera(Vector3f coordinates, Vector3f rotation, Terrain terrain) {
 		this.coordinates = coordinates;
 		this.rotation = rotation;
 		this.terrain = terrain;

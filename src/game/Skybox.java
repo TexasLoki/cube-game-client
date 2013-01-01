@@ -2,8 +2,12 @@ package game;
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 
+import terrain.TerrainCube;
+import types.Vector3f;
+import types.Vector4f;
 
-public class Skybox extends Cube {
+
+public class Skybox extends TerrainCube {
 
 	public Skybox(Vector3f pos1, Vector3f pos2, Vector4f color, Texture texture) {
 		super(pos1, pos2, color, texture, null);

@@ -14,7 +14,9 @@ import org.newdawn.slick.opengl.Texture;
 
 import profiling.Profiling;
 import profiling.ProfilingPart;
-import terrain.CubeTerrain;
+import terrain.Terrain;
+import types.Vector3;
+import types.Vector3f;
 
 
 public class Game {
@@ -33,7 +35,7 @@ public class Game {
 	
 	// Game components
 	private Camera camera;
-	private CubeTerrain terrain;
+	private Terrain terrain;
 	private TextureStore textureStore;
 	private boolean running = true;
 	
@@ -61,7 +63,7 @@ public class Game {
 		crossHairTexture = textureStore.getTexture("res/crosshair.png");
 		
 		// Generate the terrain
-		terrain = new CubeTerrain(new Vector3f(-25.0f, -40.0f, -25.0f), new Vector3(16, 1, 16), new Vector3(16, 50, 16), new Vector3f(1.0f, 1.0f, 1.0f), TEXTURES, textureStore);
+		terrain = new Terrain(new Vector3f(-25.0f, -40.0f, -25.0f), new Vector3(16, 1, 16), new Vector3(16, 50, 16), new Vector3f(1.0f, 1.0f, 1.0f), TEXTURES, textureStore);
 		
 		final int TERRAIN_MIN_HEIGHT = 0;
 		final int TERRAIN_MAX_HEIGHT = 40;
@@ -150,13 +152,14 @@ public class Game {
 		GL11.glEnable(GL11.GL_BLEND);
 		
 		// Create the ambient light
-		float ambientLightArray[] = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
+		float ambientLightArray[] = new float[] { 0.2f, 0.2f, 0.2f, 1.0f };
 		FloatBuffer ambientLight = BufferUtils.createFloatBuffer(4);
 		ambientLight.put(ambientLightArray);
 		ambientLight.position(0);
 		
 		GL11.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT, ambientLight);
 		GL11.glEnable(GL11.GL_LIGHT0);
+		
 		
 		// Hide the mouse
 		Mouse.setGrabbed(true);
@@ -212,9 +215,8 @@ public class Game {
 		// Render the terrain
 		terrain.render();
 		
-		
 		opengl2D();
-
+		
 		// Draw the crosshair
 		int crossX = (int) (width / 2 - crossHairTexture.getImageWidth() / 2);
 		int crossY = (int) (height / 2 - crossHairTexture.getImageHeight() / 2);
@@ -311,8 +313,15 @@ public class Game {
 			
 			distance += step;
 		}
-		
 	}
+	
+	public FloatBuffer toBuffer(float[] array) {
+		FloatBuffer buffer = BufferUtils.createFloatBuffer(array.length);
+		buffer.put(array);
+		buffer.position(0);
+		return buffer;
+	}
+	
 	
 	public static void main(String[] args) {
 		Game cubeGame = new Game();

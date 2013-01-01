@@ -1,8 +1,13 @@
-package game;
+package terrain;
+import game.Rectf;
+
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 
-public class Cube {
+import types.Vector3f;
+import types.Vector4f;
+
+public class TerrainCube {
 
 	/* pos1 contains the lowest x, y, z. pos2 contains the heighest x, y, z */
 	public Vector3f pos1, pos2;
@@ -17,7 +22,7 @@ public class Cube {
 	// Determines which sides to draw
 	protected boolean renderTop, renderBottom, renderFront, renderBack, renderRight, renderLeft;
 	
-	public Cube(Vector3f pos1, Vector3f pos2, Vector4f color, Texture texture, Rectf texRect) {
+	public TerrainCube(Vector3f pos1, Vector3f pos2, Vector4f color, Texture texture, Rectf texRect) {
 		this.pos1 = pos1;
 		this.pos2 = pos2;
 		this.color = color;

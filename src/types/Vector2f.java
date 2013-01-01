@@ -1,4 +1,4 @@
-package game;
+package types;
 
 public class Vector2f {
 	public float x, y;

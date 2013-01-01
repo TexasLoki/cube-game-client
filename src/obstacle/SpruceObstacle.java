@@ -1,12 +1,12 @@
 package obstacle;
 
-import game.Cube;
 import game.TextureStore;
-import game.Vector4f;
 
 import org.newdawn.slick.opengl.Texture;
 
+import terrain.TerrainCube;
 import terrain.TerrainChunk;
+import types.Vector4f;
 
 public class SpruceObstacle extends Obstacle {
 
@@ -28,13 +28,13 @@ public class SpruceObstacle extends Obstacle {
 		yLength = stemHeight + crownHeightPerLevel;
 		
 		// Create the array
-		obstacleArray = new Cube[xLength][yLength][zLength];
+		obstacleArray = new TerrainCube[xLength][yLength][zLength];
 		
 		// Create the green crown/leaves
 		for(int y = stemHeight; y < stemHeight + crownHeightPerLevel; y++) {
 			for(int x = 0; x < stemThickness; x++) {
 				for(int z = 0; z < stemThickness; z++) {
-					obstacleArray[(xLength - stemThickness) / 2 + x][y][(zLength - stemThickness) / 2 + z] = new Cube(null, null, new Vector4f(0.0f, 0.20f, 0.04f, 1.0f), cubeTextures, TextureStore.getTexRect(0, 13));
+					obstacleArray[(xLength - stemThickness) / 2 + x][y][(zLength - stemThickness) / 2 + z] = new TerrainCube(null, null, new Vector4f(0.0f, 0.20f, 0.04f, 1.0f), cubeTextures, TextureStore.getTexRect(0, 13));
 				}
 			}
 		}
@@ -44,7 +44,7 @@ public class SpruceObstacle extends Obstacle {
 			
 			for(int x = 0; x < rectSize; x++) {
 				for(int z = 0; z < rectSize; z++) {
-					obstacleArray[(xLength - rectSize) / 2 + x][y][(zLength - rectSize) / 2 + z] = new Cube(null, null, new Vector4f(0.0f, 0.20f, 0.04f, 1.0f), cubeTextures, TextureStore.getTexRect(0, 13));
+					obstacleArray[(xLength - rectSize) / 2 + x][y][(zLength - rectSize) / 2 + z] = new TerrainCube(null, null, new Vector4f(0.0f, 0.20f, 0.04f, 1.0f), cubeTextures, TextureStore.getTexRect(0, 13));
 				}
 			}
 			
@@ -54,7 +54,7 @@ public class SpruceObstacle extends Obstacle {
 		for(int y = 0; y < stemHeight; y++) {
 			for(int x = 0; x < stemThickness; x++) {
 				for(int z = 0; z < stemThickness; z++) {
-					obstacleArray[(xLength - stemThickness) / 2 + x][y][(zLength - stemThickness) / 2 + z] = new Cube(null, null, new Vector4f(0.25f, 0.125f, 0.0f, 1.0f), cubeTextures, TextureStore.getTexRect(1, 13));
+					obstacleArray[(xLength - stemThickness) / 2 + x][y][(zLength - stemThickness) / 2 + z] = new TerrainCube(null, null, new Vector4f(0.25f, 0.125f, 0.0f, 1.0f), cubeTextures, TextureStore.getTexRect(1, 13));
 				}
 			}
 			

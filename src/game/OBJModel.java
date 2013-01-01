@@ -8,6 +8,9 @@ import java.util.StringTokenizer;
 
 import org.lwjgl.opengl.GL11;
 
+import types.Vector2f;
+import types.Vector3f;
+
 
 public class OBJModel {
 

@@ -1,16 +1,17 @@
 package terrain;
-import game.Cube;
 import game.Rectf;
 import game.SimplexNoise;
 import game.TextureStore;
-import game.Vector3;
-import game.Vector3f;
-import game.Vector4f;
 
 import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.opengl.Texture;
 
-public class CubeTerrain {
+import types.Cube6f;
+import types.Vector3;
+import types.Vector3f;
+import types.Vector4f;
+
+public class Terrain {
 
 	// Number of chunks and chunk size
 	private Vector3f translation;
@@ -26,7 +27,7 @@ public class CubeTerrain {
 	private Texture textures;
 	private boolean drawTextures;
 	
-	public CubeTerrain(Vector3f translation, Vector3 chunks, Vector3 chunkSize, Vector3f cubeSize, boolean drawTextures, TextureStore textureStore) {
+	public Terrain(Vector3f translation, Vector3 chunks, Vector3 chunkSize, Vector3f cubeSize, boolean drawTextures, TextureStore textureStore) {
 		this.chunks = chunks;
 		this.chunkSize = chunkSize;
 		this.translation = translation;
@@ -109,7 +110,7 @@ public class CubeTerrain {
 		}
 	}
 	
-	public Cube createCube(Vector3 arrayPosition) {
+	public TerrainCube createCube(Vector3 arrayPosition) {
 		// Calculate the coordinates
 		Vector3f pos1 = new Vector3f(arrayPosition.x * cubeSize.x, arrayPosition.y * cubeSize.y, arrayPosition.z * cubeSize.z);
 		Vector3f pos2 = Vector3f.add(pos1, cubeSize);
@@ -138,7 +139,7 @@ public class CubeTerrain {
 			texCoords = TextureStore.getTexRect(0, 0);
 		}
 		
-		return new Cube(pos1, pos2, color, texture, texCoords);
+		return new TerrainCube(pos1, pos2, color, texture, texCoords);
 	}
 	
 	public void render() {
@@ -207,7 +208,35 @@ public class CubeTerrain {
 		return false;
 	}
 	
-	public void setCube(Vector3f coordinates, Cube cube) {
+	public boolean collision(Cube6f cube) {
+		// Calculate array coordinates
+		Vector3 coordStart = new Vector3((int)((cube.x1 - translation.x) / cubeSize.x), (int)((cube.y1 - translation.y) / cubeSize.y), (int)((cube.z1 - translation.z) / cubeSize.z));
+		Vector3 coordEnd = new Vector3((int)Math.ceil((cube.x1 - translation.x) / cubeSize.x), (int)Math.ceil((cube.y1 - translation.y) / cubeSize.y), (int)Math.ceil((cube.z1 - translation.z) / cubeSize.z));
+		
+		// Check each terrain cube withing the Cube6f
+		for(int x = coordStart.x; x < coordEnd.x; x++) {
+			for(int y = coordStart.y; y < coordEnd.y; y++) {
+				for(int z = coordStart.z; z < coordEnd.z; z++) {
+					if(x >= 0 && x < chunks.x * chunkSize.x &&
+							y >= 0 && y < chunks.y * chunkSize.y &&
+							z >= 0 && z < chunks.z * chunkSize.z) {
+						// Calculate which chunk this belongs to
+						Vector3 chunkCoordinates = new Vector3(x / chunkSize.x, y / chunkSize.y, z / chunkSize.z);
+						TerrainChunk chunk = chunkArray[chunkCoordinates.x][chunkCoordinates.y][chunkCoordinates.z];
+						
+						// Is there a cube at this coordinate?
+						if(chunk.cubes[x - chunkCoordinates.x * chunkSize.x][y - chunkCoordinates.y * chunkSize.y][z - chunkCoordinates.z * chunkSize.z] != null) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	public void setCube(Vector3f coordinates, TerrainCube cube) {
 		// Get the cube coordinates in the array
 		Vector3 cubeCoordinates = new Vector3((int)((coordinates.x - translation.x) / cubeSize.x), (int)((coordinates.y - translation.y) / cubeSize.y), (int)((coordinates.z - translation.z) / cubeSize.z));
 		

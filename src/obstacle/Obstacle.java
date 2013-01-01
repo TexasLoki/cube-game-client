@@ -1,18 +1,18 @@
 package obstacle;
 
-import game.Cube;
-import game.Vector3;
-import game.Vector3f;
 
 import org.newdawn.slick.opengl.Texture;
 
+import terrain.TerrainCube;
 import terrain.TerrainChunk;
+import types.Vector3;
+import types.Vector3f;
 
 public abstract class Obstacle {
 
 	protected TerrainChunk chunk;
 	protected Texture cubeTextures;
-	protected Cube[][][] obstacleArray;
+	protected TerrainCube[][][] obstacleArray;
 	protected int xLength, yLength, zLength;
 	
 	public Obstacle(TerrainChunk chunk, Texture cubeTextures) {
@@ -44,7 +44,7 @@ public abstract class Obstacle {
 				for(int y = 0; y < yLength; y++) {
 					for(int z = 0; z < zLength; z++) {
 						if(obstacleArray[x][y][z] != null) {
-							chunk.cubes[position.x + x][position.y + y][position.z + z] = new Cube(null, null, obstacleArray[x][y][z].color, obstacleArray[x][y][z].texture, obstacleArray[x][y][z].texRect);
+							chunk.cubes[position.x + x][position.y + y][position.z + z] = new TerrainCube(null, null, obstacleArray[x][y][z].color, obstacleArray[x][y][z].texture, obstacleArray[x][y][z].texRect);
 							chunk.cubes[position.x + x][position.y + y][position.z + z].pos1 = new Vector3f((position.x + x) * chunk.cubeSize.x, (position.y + y) * chunk.cubeSize.y, (position.z + z) * chunk.cubeSize.z);
 							chunk.cubes[position.x + x][position.y + y][position.z + z].pos2 = Vector3f.add(chunk.cubes[position.x + x][position.y + y][position.z + z].pos1, chunk.cubeSize);
 						}

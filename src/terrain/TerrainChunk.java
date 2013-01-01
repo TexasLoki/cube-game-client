@@ -1,9 +1,6 @@
 package terrain;
 
-import game.Cube;
 import game.SimplexNoise;
-import game.Vector3;
-import game.Vector3f;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -12,9 +9,12 @@ import java.util.List;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
+import types.Vector3;
+import types.Vector3f;
+
 public class TerrainChunk {
 
-	public Cube[][][] cubes;
+	public TerrainCube[][][] cubes;
 	public Vector3 position;
 	public Vector3 size;
 	public Vector3f cubeSize;
@@ -37,10 +37,10 @@ public class TerrainChunk {
 		this.drawTextures = drawTextures;
 		
 		// Allocate an array of cubes
-		cubes = new Cube[size.x][size.y][size.z];
+		cubes = new TerrainCube[size.x][size.y][size.z];
 	}
 	
-	public void generateChunk(int minHeight, int maxHeight, float resolution, CubeTerrain t) {
+	public void generateChunk(int minHeight, int maxHeight, float resolution, Terrain t) {
 		// Generate a heightmap using perlin noise
 		int heightData[][] = new int[size.x][size.z];
 		

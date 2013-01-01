@@ -1,4 +1,4 @@
-package game;
+package types;
 
 public class Vector4f {
 
