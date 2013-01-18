@@ -42,7 +42,7 @@ public class Game {
 	
 	// Toggles
 	private boolean flyMode = true;
-	private boolean doCollisionChecking = false;
+	private boolean doCollisionChecking = true;
 	private boolean wireframe = false;
 	
 	// Profiling
