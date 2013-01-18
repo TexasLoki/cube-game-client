@@ -19,6 +19,8 @@ public class TerrainCube {
 	public Texture texture;
 	public Rectf texRect;
 	
+	public static final boolean PER_FACE_NORMALS = false;
+	
 	// Determines which sides to draw
 	protected boolean renderTop, renderBottom, renderFront, renderBack, renderRight, renderLeft;
 	
@@ -321,96 +323,189 @@ public class TerrainCube {
 		// Write array data
 		int pos = 0;
 		
-		// Top
-		if(renderTop) {
-			putCoordinatesInArray(normals, pos, 1.0f, 1.0f, -1.0f);
-			pos += 3;
+		if(PER_FACE_NORMALS) {
+			// Top
+			if(renderTop) {
+				putCoordinatesInArray(normals, pos, 0.0f, 1.0f, 0.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 0.0f, 1.0f, 0.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 0.0f, 1.0f, 0.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 0.0f, 1.0f, 0.0f);
+				pos += 3;
+			}
 			
-			putCoordinatesInArray(normals, pos, -1.0f, 1.0f, -1.0f);
-			pos += 3;
+			// Bottom
+			if(renderBottom) {
+				putCoordinatesInArray(normals, pos, 0.0f, -1.0f, 0.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 0.0f, -1.0f, 0.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 0.0f, -1.0f, 0.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 0.0f, -1.0f, 0.0f);
+				pos += 3;
+			}
 			
-			putCoordinatesInArray(normals, pos, -1.0f, 1.0f, 1.0f);
-			pos += 3;
+			// Front
+			if(renderFront) {
+				putCoordinatesInArray(normals, pos, 0.0f, 0.0f, 1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 0.0f, 0.0f, 1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 0.0f, 0.0f, 1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 0.0f, 0.0f, 1.0f);
+				pos += 3;
+			}
 			
-			putCoordinatesInArray(normals, pos, 1.0f, 1.0f, 1.0f);
-			pos += 3;
+			// Back
+			if(renderBack) {
+				putCoordinatesInArray(normals, pos, 0.0f, 0.0f, -1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 0.0f, 0.0f, -1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 0.0f, 0.0f, -1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 0.0f, 0.0f, -1.0f);
+				pos += 3;
+			}
+			
+			// Right
+			if(renderRight) {
+				putCoordinatesInArray(normals, pos, 1.0f, 0.0f, 0.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 1.0f, 0.0f, 0.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 1.0f, 0.0f, 0.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 1.0f, 0.0f, 0.0f);
+				pos += 3;
+			}
+			
+			// Left
+			if(renderLeft) {
+				putCoordinatesInArray(normals, pos, -1.0f, 0.0f, 0.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, 0.0f, 0.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, 0.0f, 0.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, 0.0f, 0.0f);
+				pos += 3;
+			}
+			
+		} else {
+			// Top
+			if(renderTop) {
+				putCoordinatesInArray(normals, pos, 1.0f, 1.0f, -1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, 1.0f, -1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, 1.0f, 1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 1.0f, 1.0f, 1.0f);
+				pos += 3;
+			}
+			
+			// Bottom
+			if(renderBottom) {
+				putCoordinatesInArray(normals, pos, 1.0f, -1.0f, 1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, -1.0f, 1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, -1.0f, -1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 1.0f, -1.0f, -1.0f);
+				pos += 3;
+			}
+			
+			// Front
+			if(renderFront) {
+				putCoordinatesInArray(normals, pos, 1.0f, 1.0f, 1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, 1.0f, 1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, -1.0f, 1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 1.0f, -1.0f, 1.0f);
+				pos += 3;
+			}
+			
+			// Back
+			if(renderBack) {
+				putCoordinatesInArray(normals, pos, -1.0f, 1.0f, -1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 1.0f, 1.0f, -1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 1.0f, -1.0f, -1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, -1.0f, -1.0f);
+				pos += 3;
+			}
+			
+			// Right
+			if(renderRight) {
+				putCoordinatesInArray(normals, pos, 1.0f, 1.0f, -1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 1.0f, 1.0f, 1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 1.0f, -1.0f, 1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, 1.0f, -1.0f, -1.0f);
+				pos += 3;
+			}
+			
+			// Left
+			if(renderLeft) {
+				putCoordinatesInArray(normals, pos, -1.0f, 1.0f, 1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, 1.0f, -1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, -1.0f, -1.0f);
+				pos += 3;
+				
+				putCoordinatesInArray(normals, pos, -1.0f, -1.0f, 1.0f);
+				pos += 3;
+			}
 		}
-		
-		// Bottom
-		if(renderBottom) {
-			putCoordinatesInArray(normals, pos, 1.0f, -1.0f, 1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, -1.0f, -1.0f, 1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, -1.0f, -1.0f, -1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, 1.0f, -1.0f, -1.0f);
-			pos += 3;
-		}
-		
-		// Front
-		if(renderFront) {
-			putCoordinatesInArray(normals, pos, 1.0f, 1.0f, 1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, -1.0f, 1.0f, 1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, -1.0f, -1.0f, 1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, 1.0f, -1.0f, 1.0f);
-			pos += 3;
-		}
-		
-		// Back
-		if(renderBack) {
-			putCoordinatesInArray(normals, pos, -1.0f, 1.0f, -1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, 1.0f, 1.0f, -1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, 1.0f, -1.0f, -1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, -1.0f, -1.0f, -1.0f);
-			pos += 3;
-		}
-		
-		// Right
-		if(renderRight) {
-			putCoordinatesInArray(normals, pos, 1.0f, 1.0f, -1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, 1.0f, 1.0f, 1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, 1.0f, -1.0f, 1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, 1.0f, -1.0f, -1.0f);
-			pos += 3;
-		}
-		
-		// Left
-		if(renderLeft) {
-			putCoordinatesInArray(normals, pos, -1.0f, 1.0f, 1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, -1.0f, 1.0f, -1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, -1.0f, -1.0f, -1.0f);
-			pos += 3;
-			
-			putCoordinatesInArray(normals, pos, -1.0f, -1.0f, 1.0f);
-			pos += 3;
-		}
-		
+
 		return normals;
 	}
 	
