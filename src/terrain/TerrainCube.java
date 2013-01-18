@@ -19,7 +19,7 @@ public class TerrainCube {
 	public Texture texture;
 	public Rectf texRect;
 	
-	public static final boolean PER_FACE_NORMALS = false;
+	public static final boolean PER_FACE_NORMALS = true;
 	
 	// Determines which sides to draw
 	protected boolean renderTop, renderBottom, renderFront, renderBack, renderRight, renderLeft;
