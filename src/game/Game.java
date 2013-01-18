@@ -15,9 +15,10 @@ import org.newdawn.slick.opengl.Texture;
 import profiling.Profiling;
 import profiling.ProfilingPart;
 import terrain.Terrain;
+import terrain.TerrainCube;
 import types.Vector3;
 import types.Vector3f;
-
+import types.Vector4f;
 
 public class Game {
 	
@@ -53,6 +54,10 @@ public class Game {
 	// Camera block distance
 	private float distance;
 	private Texture crossHairTexture;
+	private float blockChangeTimer = 0.3f;
+	
+	// GUI
+	private GUI gui;
 	
 	public void start() {
 		// Initialize OpenGL and LWJGL stuff
@@ -69,13 +74,16 @@ public class Game {
 		final int TERRAIN_MAX_HEIGHT = 40;
 		final float TERRAIN_GEN_RESOLUTION = 128.0f;
 		final long TERRAIN_GEN_SEED = 2;
-		
+
 		terrain.generateTerrain(TERRAIN_MIN_HEIGHT, TERRAIN_MAX_HEIGHT, TERRAIN_GEN_RESOLUTION,
 								TERRAIN_GEN_SEED);
 		
 		// Create the camera
 		camera = new Camera(new Vector3f(0.0f, 50.0f, 0.0f), new Vector3f(-20.0f, -135.0f, 0.0f), terrain);
-			
+		
+		// Create the GUI
+		gui = new GUI();
+		
 		// Main loop
 		long lastFrame = System.currentTimeMillis();
 		
@@ -109,6 +117,17 @@ public class Game {
 			Display.setTitle("x: " + (int)camera.coordinates.x + " y: " + (int)camera.coordinates.y + " z: " + (int)camera.coordinates.z +
 					" xRot: " + (int)camera.rotation.x + " yRot: " + (int)camera.rotation.y + " zRot: " + camera.rotation.z + " FPS: " + Math.round(profiling.fps()) + " DISTANCE: " + distance);
 
+			gui.setInfoLabel("FPS: " + profiling.fps() +
+							"\nvsync: " + VSYNC + 
+							"\nfulscreen: " + FULLSCREEN +
+							"\ntextures: " + TEXTURES + 
+							"\nTERRAIN_MIN_HEIGHT: " + TERRAIN_MIN_HEIGHT +
+							"\nTERRAIN_MAX_HEIGHT: " + TERRAIN_MAX_HEIGHT + 
+							"\nTERRAIN_GEN_RESOLUTION: " + TERRAIN_GEN_RESOLUTION +
+							"\nTERRAIN_GEN_SEED: " + TERRAIN_GEN_SEED + 
+							"\nchunk size (blocks) x=" + terrain.chunkSize.x + " y=" + terrain.chunkSize.y + " z=" + terrain.chunkSize.z +
+							"\nworld size (chunks) x=" + terrain.chunks.x+ " y=" + terrain.chunks.y + " z=" + terrain.chunks.z);
+			
 			lastFrame = t;
 		}
 		
@@ -160,7 +179,6 @@ public class Game {
 		GL11.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT, ambientLight);
 		GL11.glEnable(GL11.GL_LIGHT0);
 		
-		
 		// Hide the mouse
 		Mouse.setGrabbed(true);
 	}
@@ -201,6 +219,7 @@ public class Game {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glLoadIdentity();
 		
+		
 		// 3D
 		opengl3D();
 		
@@ -220,7 +239,6 @@ public class Game {
 		// Draw the crosshair
 		int crossX = (int) (width / 2 - crossHairTexture.getImageWidth() / 2);
 		int crossY = (int) (height / 2 - crossHairTexture.getImageHeight() / 2);
-		
 		
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, crossHairTexture.getTextureID());
@@ -242,7 +260,23 @@ public class Game {
 		GL11.glEnd();
 		
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		
+		// Render the GUI
+		gui.render();
 	}
+	
+	  public static void checkGLError() {
+		    int error= GL11.glGetError();
+		    if (error != GL11.GL_NO_ERROR) {
+		      String glerrmsg = GLU.gluErrorString(error);
+		     System.out.println("Error: (" + error + ") " + glerrmsg);
+		      try {
+		        throw new Exception();
+		      } catch (Exception e) {
+		        e.printStackTrace();
+		      }
+		    }
+		  }
 	
 	public void update(float deltaTime) {
 		// Handle mouse movement
@@ -286,6 +320,9 @@ public class Game {
 		if(!flyMode)
 			camera.move(0, Camera.FORWARD, deltaTime * FALSE_GRAVITY_SPEED, doCollisionChecking, flyMode);
 		
+		if(blockChangeTimer > 0)
+			blockChangeTimer -= deltaTime;	
+		
 		// Find the block the user is looking at
 		float step = 0.01f;
 		
@@ -297,22 +334,60 @@ public class Game {
 		float ySpeed = (float) (Math.sin(Math.toRadians(camera.rotation.x))) * step;
 		float zSpeed = (float) (Math.cos(Math.toRadians(camera.rotation.x)) * -Math.cos(Math.toRadians(camera.rotation.y)) * 1) * step;
 		
+		Vector3f lastLookPos = new Vector3f(xLook, yLook, zLook);
+		
+		// Check for mouse clicks
+		boolean destroyBlock = false;
+		boolean placeNewBlock = false;
+		
+		while(Mouse.next()) {
+			if(blockChangeTimer <= 0) {
+					if(Mouse.getEventButton() == 0) {
+						destroyBlock = true;
+					} else if(Mouse.getEventButton() == 1) {
+						placeNewBlock = true;
+					}
+			}
+		}
+		
+		if(blockChangeTimer <= 0) {
+			if(Mouse.isButtonDown(0)) {
+				destroyBlock = true;
+			} else if(Mouse.isButtonDown(1)) {
+				placeNewBlock = true;
+			}
+		}
+		
+		
 		distance = 0.0f;
 		while(distance < 20.0f) {
 			if(terrain.solidAt(new Vector3f(xLook, yLook, zLook))) {
-				if(Mouse.isButtonDown(0)) {
-					terrain.setCube(new Vector3f(xLook, yLook, zLook), null);
-				}
-					
+					if(destroyBlock) {
+						terrain.setCube(new Vector3f(xLook, yLook, zLook), null);
+						blockChangeTimer = 0.2f;
+					} else if(placeNewBlock) {
+						TerrainCube newCube = new TerrainCube(null, null, new Vector4f(0.3f, 0.3f, 0.3f, 1.0f), terrain.textures, TextureStore.getTexRect(0, 2));
+						terrain.setCube(lastLookPos, newCube);
+						blockChangeTimer = 0.3f;
+					}
+
 				break;
 			}
+			
+			lastLookPos.x = xLook;
+			lastLookPos.y = yLook;
+			lastLookPos.z = zLook;
 			
 			xLook += xSpeed;
 			yLook += ySpeed;
 			zLook += zSpeed;
 			
-			distance += step;
+			distance += step;		
 		}
+		
+		// Update gui
+		gui.update();
+		
 	}
 	
 	public FloatBuffer toBuffer(float[] array) {

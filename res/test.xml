@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<nifty>
+    
+  <useStyles filename="nifty-default-styles.xml"/>
+  <useControls filename="nifty-default-controls.xml"/>
+  
+  <screen id="start">
+    <layer backgroundColor="#5500cc" childLayout="absolute">
+      <control name="label" id="infoLabel" x="0px" y="0px" width="30%" height="100%" textHAlign="left" textVAlign="top"/>
+    </layer>
+    
+  </screen>
+  
+</nifty>

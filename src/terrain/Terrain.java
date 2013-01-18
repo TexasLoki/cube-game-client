@@ -24,7 +24,7 @@ public class Terrain {
 	public Vector3f cubeSize;
 	
 	// Textures
-	private Texture textures;
+	public Texture textures;
 	private boolean drawTextures;
 	
 	public Terrain(Vector3f translation, Vector3 chunks, Vector3 chunkSize, Vector3f cubeSize, boolean drawTextures, TextureStore textureStore) {
@@ -248,12 +248,33 @@ public class Terrain {
 			Vector3 chunkCoordinates = new Vector3(cubeCoordinates.x / chunkSize.x, cubeCoordinates.y / chunkSize.y, cubeCoordinates.z / chunkSize.z);
 			TerrainChunk chunk = chunkArray[chunkCoordinates.x][chunkCoordinates.y][chunkCoordinates.z];
 			
+			// Set correct cube pos
+			if(cube != null) {
+				Vector3f pos1 = new Vector3f((cubeCoordinates.x - chunkCoordinates.x * chunkSize.x) * cubeSize.x, (cubeCoordinates.y - chunkCoordinates.y * chunkSize.y) * cubeSize.y, (cubeCoordinates.z - chunkCoordinates.z * chunkSize.z) * cubeSize.z);
+				Vector3f pos2 = Vector3f.add(pos1, cubeSize);
+				
+				cube.pos1 = pos1;
+				cube.pos2 = pos2;
+			}
+	
 			// Put block
 			chunk.cubes[cubeCoordinates.x - chunkCoordinates.x * chunkSize.x][cubeCoordinates.y - chunkCoordinates.y * chunkSize.y][cubeCoordinates.z - chunkCoordinates.z * chunkSize.z] = cube;
 			
 			// Rebuild render data for the chunk
 			chunk.buildRenderData();
 		}
+	}
+	
+	public Vector3 cubeCoordinates(Vector3f coordinates) {
+		Vector3 cubeCoordinates = new Vector3((int)((coordinates.x - translation.x) / cubeSize.x), (int)((coordinates.y - translation.y) / cubeSize.y), (int)((coordinates.z - translation.z) / cubeSize.z));
+		if(cubeCoordinates.x >= 0 && cubeCoordinates.x < chunks.x * chunkSize.x &&
+				cubeCoordinates.y >= 0 && cubeCoordinates.y < chunks.y * chunkSize.y &&
+				cubeCoordinates.z >= 0 && cubeCoordinates.z < chunks.z * chunkSize.z) {
+			
+			return cubeCoordinates;
+		}
+		
+		return null;
 	}
 	
 	public void setUseTextures(boolean useTextures) {
