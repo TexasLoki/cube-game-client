@@ -252,65 +252,84 @@ public class Game implements ConsoleCommand {
 		// Render the GUI
 		gui.render();
 		
-		// Draw the crosshair
-		int crossX = (int) (width / 2 - crossHairTexture.getImageWidth() / 2);
-		int crossY = (int) (height / 2 - crossHairTexture.getImageHeight() / 2);
-		
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, crossHairTexture.getTextureID());
-		
-		GL11.glBegin(GL11.GL_QUADS);
-		
-		GL11.glTexCoord2f(0, 0); 
-		GL11.glVertex2f(crossX, crossY);
-		
-		GL11.glTexCoord2f(0, 1); 
-		GL11.glVertex2f(crossX, crossY + crossHairTexture.getImageHeight());
-		
-		GL11.glTexCoord2f(1, 1); 
-		GL11.glVertex2f(crossX + crossHairTexture.getImageWidth(), crossY + crossHairTexture.getImageHeight());
-		
-		GL11.glTexCoord2f(1, 0); 
-		GL11.glVertex2f(crossX + crossHairTexture.getImageWidth(), crossY);
-		
-		GL11.glEnd();
-		
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		// Draw the crosshair if the console is not visible
+		if(!gui.getConsole().isVisible) {
+			int crossX = (int) (width / 2 - crossHairTexture.getImageWidth() / 2);
+			int crossY = (int) (height / 2 - crossHairTexture.getImageHeight() / 2);
+			
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			GL11.glBindTexture(GL11.GL_TEXTURE_2D, crossHairTexture.getTextureID());
+			
+			GL11.glBegin(GL11.GL_QUADS);
+			
+			GL11.glTexCoord2f(0, 0); 
+			GL11.glVertex2f(crossX, crossY);
+			
+			GL11.glTexCoord2f(0, 1); 
+			GL11.glVertex2f(crossX, crossY + crossHairTexture.getImageHeight());
+			
+			GL11.glTexCoord2f(1, 1); 
+			GL11.glVertex2f(crossX + crossHairTexture.getImageWidth(), crossY + crossHairTexture.getImageHeight());
+			
+			GL11.glTexCoord2f(1, 0); 
+			GL11.glVertex2f(crossX + crossHairTexture.getImageWidth(), crossY);
+			
+			GL11.glEnd();
+			
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
+		}
 	}
 	
 	public void update(float deltaTime) {
+		// Quit?
+		if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
+			running = false;
+		
+		// Mouse variables
+		boolean destroyBlock = false;
+		boolean placeNewBlock = false;
+		
 		// Only let the GUI take keyboard inputs if the console is visible
 		if(gui.getConsole().isVisible) {
 			gui.update();
-		}
-		
-		// Handle mouse movement
-		camera.addRotation(new Vector3f(Mouse.getDY() * MOUSE_SPEED_SCALE, -Mouse.getDX() * MOUSE_SPEED_SCALE, 0.0f));
-		
-		float movementSpeed = flymode ? MOVEMENT_SPEED_FLYMODE : MOVEMENT_SPEED;
-		
-		// Handle keypresses
-		if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
-			running = false;
-		if(Keyboard.isKeyDown(Keyboard.KEY_W))
-			camera.move(movementSpeed * deltaTime, Camera.FORWARD, 0, collisionDetection, flymode);
-		if(Keyboard.isKeyDown(Keyboard.KEY_S))
-			camera.move(movementSpeed * deltaTime, Camera.BACKWARD, 0, collisionDetection, flymode);
-		if(Keyboard.isKeyDown(Keyboard.KEY_A))
-			camera.move(movementSpeed * deltaTime, Camera.LEFT, 0, collisionDetection, flymode);
-		if(Keyboard.isKeyDown(Keyboard.KEY_D))
-			camera.move(movementSpeed * deltaTime, Camera.RIGHT, 0, collisionDetection, flymode);
-		if(Keyboard.isKeyDown(Keyboard.KEY_SPACE))
-			camera.move(0, Camera.RIGHT, -FALSE_GRAVITY_SPEED * 2 * deltaTime, collisionDetection, flymode);
-		if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
-			camera.move(0, Camera.RIGHT, FALSE_GRAVITY_SPEED * 2 * deltaTime, collisionDetection, flymode);
-		
-		// Check for pressed keys
-		while (Keyboard.next()) {
-			if (Keyboard.getEventKeyState()) {
-				if(Keyboard.getEventKey() == Keyboard.KEY_F1) {
-					gui.getConsole().toggle();
-				}			
+		} else {
+			// Handle character camera
+			camera.addRotation(new Vector3f(Mouse.getDY() * MOUSE_SPEED_SCALE, -Mouse.getDX() * MOUSE_SPEED_SCALE, 0.0f));
+	
+			// Handle character movement
+			float movementSpeed = flymode ? MOVEMENT_SPEED_FLYMODE : MOVEMENT_SPEED;
+			
+			if(Keyboard.isKeyDown(Keyboard.KEY_W))
+				camera.move(movementSpeed * deltaTime, Camera.FORWARD, 0, collisionDetection, flymode);
+			if(Keyboard.isKeyDown(Keyboard.KEY_S))
+				camera.move(movementSpeed * deltaTime, Camera.BACKWARD, 0, collisionDetection, flymode);
+			if(Keyboard.isKeyDown(Keyboard.KEY_A))
+				camera.move(movementSpeed * deltaTime, Camera.LEFT, 0, collisionDetection, flymode);
+			if(Keyboard.isKeyDown(Keyboard.KEY_D))
+				camera.move(movementSpeed * deltaTime, Camera.RIGHT, 0, collisionDetection, flymode);
+			if(Keyboard.isKeyDown(Keyboard.KEY_SPACE))
+				camera.move(0, Camera.RIGHT, -FALSE_GRAVITY_SPEED * 2 * deltaTime, collisionDetection, flymode);
+			if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+				camera.move(0, Camera.RIGHT, FALSE_GRAVITY_SPEED * 2 * deltaTime, collisionDetection, flymode);
+			
+			// Check for pressed keys
+			while (Keyboard.next()) {
+				if (Keyboard.getEventKeyState()) {
+					if(Keyboard.getEventKey() == Keyboard.KEY_F1) {
+						gui.getConsole().toggle();
+					}			
+				}
+			}
+			
+			// Check mouse presses
+			while(Mouse.next()) {
+				if(blockChangeTimer <= 0) {
+						if(Mouse.getEventButton() == 0) {
+							destroyBlock = true;
+						} else if(Mouse.getEventButton() == 1) {
+							placeNewBlock = true;
+						}
+				}
 			}
 		}
 		
@@ -334,21 +353,7 @@ public class Game implements ConsoleCommand {
 		
 		Vector3f lastLookPos = new Vector3f(xLook, yLook, zLook);
 		
-		// Check for mouse clicks
-		boolean destroyBlock = false;
-		boolean placeNewBlock = false;
-		
-		
-		while(Mouse.next()) {
-			if(blockChangeTimer <= 0) {
-					if(Mouse.getEventButton() == 0) {
-						destroyBlock = true;
-					} else if(Mouse.getEventButton() == 1) {
-						placeNewBlock = true;
-					}
-			}
-		}
-		
+		// Place or destroy block
 		if(blockChangeTimer <= 0) {
 			if(Mouse.isButtonDown(0)) {
 				destroyBlock = true;
@@ -356,7 +361,6 @@ public class Game implements ConsoleCommand {
 				placeNewBlock = true;
 			}
 		}
-		
 		
 		distance = 0.0f;
 		while(distance < 20.0f) {
