@@ -127,7 +127,7 @@ public class Game {
 							"\nTERRAIN_GEN_SEED: " + TERRAIN_GEN_SEED + 
 							"\nchunk size (blocks) x=" + terrain.chunkSize.x + " y=" + terrain.chunkSize.y + " z=" + terrain.chunkSize.z +
 							"\nworld size (chunks) x=" + terrain.chunks.x+ " y=" + terrain.chunks.y + " z=" + terrain.chunks.z);
-			
+		
 			lastFrame = t;
 		}
 		
@@ -187,6 +187,7 @@ public class Game {
 		// Disable 3D things
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		GL11.glDisable(GL11.GL_LIGHTING);
+		GL11.glDisable(GL11.GL_CULL_FACE);
 		
 		// Set 2D
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -203,7 +204,7 @@ public class Game {
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		
-		GLU.gluPerspective(45.0f, (float)width / (float)height, 1.000000f, 300.0f);
+		GLU.gluPerspective(45.0f, (float)width / (float)height, 0.1f, 300.0f);
 		
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
@@ -211,6 +212,7 @@ public class Game {
 		// Enable 3D things
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glEnable(GL11.GL_LIGHTING);
+		GL11.glEnable(GL11.GL_CULL_FACE);
 	}
 	
 	public void render() {
@@ -218,7 +220,6 @@ public class Game {
 		GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glLoadIdentity();
-		
 		
 		// 3D
 		opengl3D();
@@ -235,6 +236,9 @@ public class Game {
 		terrain.render();
 		
 		opengl2D();
+		
+		// Render the GUI
+		gui.render();
 		
 		// Draw the crosshair
 		int crossX = (int) (width / 2 - crossHairTexture.getImageWidth() / 2);
@@ -260,23 +264,7 @@ public class Game {
 		GL11.glEnd();
 		
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		
-		// Render the GUI
-		gui.render();
 	}
-	
-	  public static void checkGLError() {
-		    int error= GL11.glGetError();
-		    if (error != GL11.GL_NO_ERROR) {
-		      String glerrmsg = GLU.gluErrorString(error);
-		     System.out.println("Error: (" + error + ") " + glerrmsg);
-		      try {
-		        throw new Exception();
-		      } catch (Exception e) {
-		        e.printStackTrace();
-		      }
-		    }
-		  }
 	
 	public void update(float deltaTime) {
 		// Handle mouse movement
@@ -387,7 +375,6 @@ public class Game {
 		
 		// Update gui
 		gui.update();
-		
 	}
 	
 	public FloatBuffer toBuffer(float[] array) {

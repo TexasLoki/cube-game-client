@@ -1,12 +1,18 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<nifty>
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd" xmlns:xsi="http://
+www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://niftygui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
     
   <useStyles filename="nifty-default-styles.xml"/>
   <useControls filename="nifty-default-controls.xml"/>
   
   <screen id="start">
-    <layer backgroundColor="#5500cc" childLayout="absolute">
-      <control name="label" id="infoLabel" x="0px" y="0px" width="30%" height="100%" textHAlign="left" textVAlign="top"/>
+      
+    <layer childLayout="absolute">
+      <control name="label" id="infoLabel" x="0px" y="0px" width="15%" height="30%" textHAlign="left" textVAlign="top"/>
+    </layer>
+      
+    <layer childLayout="center">
+      <control id="console" name="nifty-console" lines="25" align="center" valign="center" width="70%"/>   
     </layer>
     
   </screen>
