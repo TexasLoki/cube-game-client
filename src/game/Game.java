@@ -1,5 +1,7 @@
 package game;
 
+import gui.GUI;
+
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
@@ -13,14 +15,14 @@ import org.lwjgl.util.glu.GLU;
 import org.newdawn.slick.opengl.Texture;
 
 import profiling.Profiling;
-import profiling.ProfilingPart;
 import terrain.Terrain;
 import terrain.TerrainCube;
 import types.Vector3;
 import types.Vector3f;
 import types.Vector4f;
+import de.lessvoid.nifty.controls.ConsoleCommands.ConsoleCommand;
 
-public class Game {
+public class Game implements ConsoleCommand {
 	
 	private static final float MOUSE_SPEED_SCALE = 0.1f;
 	private static final float MOVEMENT_SPEED = 7.0f;
@@ -31,6 +33,7 @@ public class Game {
 	
 	private boolean TEXTURES = true;
 	
+	// Graphics
 	private int width;
 	private int height;
 	
@@ -41,15 +44,12 @@ public class Game {
 	private boolean running = true;
 	
 	// Toggles
-	private boolean flyMode = true;
-	private boolean doCollisionChecking = true;
+	private boolean flymode = true;
+	private boolean collisionDetection = true;
 	private boolean wireframe = false;
 	
 	// Profiling
 	private Profiling profiling = new Profiling();
-	private ProfilingPart displayUpdate = new ProfilingPart("Display.update()");
-	private ProfilingPart renderFunction = new ProfilingPart("Render");
-	private ProfilingPart updateFunction = new ProfilingPart("Update");
 	
 	// Camera block distance
 	private float distance;
@@ -82,7 +82,20 @@ public class Game {
 		camera = new Camera(new Vector3f(0.0f, 50.0f, 0.0f), new Vector3f(-20.0f, -135.0f, 0.0f), terrain);
 		
 		// Create the GUI
-		gui = new GUI();
+		try {
+			gui = new GUI("res/test.xml");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		gui.getConsole().addCommand("help", this);
+		gui.getConsole().addCommand("flymode", this);
+		gui.getConsole().addCommand("collision_detection", this);
+		gui.getConsole().addCommand("wireframe", this);
+		gui.getConsole().addCommand("textures", this);
+		
+		gui.getConsole().output("To see available commands type 'help'");
 		
 		// Main loop
 		long lastFrame = System.currentTimeMillis();
@@ -92,32 +105,30 @@ public class Game {
 			long t = System.currentTimeMillis();
 			float deltaTime = (t - lastFrame) * 0.001f;
 			
-			// Start of frame
+			// Tell the profiler we are starting a new frame
 			profiling.frameBegin();
 			
 			// Render
-			profiling.partBegin(renderFunction);
 			render();
-			profiling.partEnd(renderFunction);
 			
 			// Updates the display, also polls the mouse and keyboard
-			profiling.partBegin(displayUpdate);
 			Display.update();
-			profiling.partEnd(displayUpdate);
 
 			// Update
-			profiling.partBegin(updateFunction);
 			update(deltaTime);	
-			profiling.partEnd(updateFunction);
 			
-			// End of frame
+			// Tell the profiler we are at the end of a frame
 			profiling.frameEnd();
-			
-			// Set title to debug info
-			Display.setTitle("x: " + (int)camera.coordinates.x + " y: " + (int)camera.coordinates.y + " z: " + (int)camera.coordinates.z +
-					" xRot: " + (int)camera.rotation.x + " yRot: " + (int)camera.rotation.y + " zRot: " + camera.rotation.z + " FPS: " + Math.round(profiling.fps()) + " DISTANCE: " + distance);
 
-			gui.setInfoLabel("FPS: " + profiling.fps() +
+			// Set the debug info
+			gui.setDebugLabel("x: " + camera.coordinates.x + 
+							"\ny: " + camera.coordinates.y + 
+							"\nz: " + camera.coordinates.z +
+							"\nxRot: " + camera.rotation.x + 
+							"\nyRot: " + camera.rotation.y + 
+							"\nzRot: " + camera.rotation.z + 
+							"\ntarget block distance: " + distance +
+							"\nFPS: " + profiling.fps() +
 							"\nvsync: " + VSYNC + 
 							"\nfulscreen: " + FULLSCREEN +
 							"\ntextures: " + TEXTURES + 
@@ -236,6 +247,7 @@ public class Game {
 		terrain.render();
 		
 		opengl2D();
+		GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
 		
 		// Render the GUI
 		gui.render();
@@ -267,46 +279,44 @@ public class Game {
 	}
 	
 	public void update(float deltaTime) {
+		// Only let the GUI take keyboard inputs if the console is visible
+		if(gui.getConsole().isVisible) {
+			gui.update();
+		}
+		
 		// Handle mouse movement
 		camera.addRotation(new Vector3f(Mouse.getDY() * MOUSE_SPEED_SCALE, -Mouse.getDX() * MOUSE_SPEED_SCALE, 0.0f));
 		
-		float movementSpeed = flyMode ? MOVEMENT_SPEED_FLYMODE : MOVEMENT_SPEED;
+		float movementSpeed = flymode ? MOVEMENT_SPEED_FLYMODE : MOVEMENT_SPEED;
 		
 		// Handle keypresses
 		if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
 			running = false;
 		if(Keyboard.isKeyDown(Keyboard.KEY_W))
-			camera.move(movementSpeed * deltaTime, Camera.FORWARD, 0, doCollisionChecking, flyMode);
+			camera.move(movementSpeed * deltaTime, Camera.FORWARD, 0, collisionDetection, flymode);
 		if(Keyboard.isKeyDown(Keyboard.KEY_S))
-			camera.move(movementSpeed * deltaTime, Camera.BACKWARD, 0, doCollisionChecking, flyMode);
+			camera.move(movementSpeed * deltaTime, Camera.BACKWARD, 0, collisionDetection, flymode);
 		if(Keyboard.isKeyDown(Keyboard.KEY_A))
-			camera.move(movementSpeed * deltaTime, Camera.LEFT, 0, doCollisionChecking, flyMode);
+			camera.move(movementSpeed * deltaTime, Camera.LEFT, 0, collisionDetection, flymode);
 		if(Keyboard.isKeyDown(Keyboard.KEY_D))
-			camera.move(movementSpeed * deltaTime, Camera.RIGHT, 0, doCollisionChecking, flyMode);
+			camera.move(movementSpeed * deltaTime, Camera.RIGHT, 0, collisionDetection, flymode);
 		if(Keyboard.isKeyDown(Keyboard.KEY_SPACE))
-			camera.move(0, Camera.RIGHT, -FALSE_GRAVITY_SPEED * 2 * deltaTime, doCollisionChecking, flyMode);
+			camera.move(0, Camera.RIGHT, -FALSE_GRAVITY_SPEED * 2 * deltaTime, collisionDetection, flymode);
 		if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
-			camera.move(0, Camera.RIGHT, FALSE_GRAVITY_SPEED * 2 * deltaTime, doCollisionChecking, flyMode);
+			camera.move(0, Camera.RIGHT, FALSE_GRAVITY_SPEED * 2 * deltaTime, collisionDetection, flymode);
 		
 		// Check for pressed keys
 		while (Keyboard.next()) {
 			if (Keyboard.getEventKeyState()) {
-				if (Keyboard.getEventKey() == Keyboard.KEY_F) {
-				    	flyMode = !flyMode;
-				} else if (Keyboard.getEventKey() == Keyboard.KEY_C) {
-				    	doCollisionChecking = !doCollisionChecking;
-				} else if (Keyboard.getEventKey() == Keyboard.KEY_V) {
-				    	wireframe = !wireframe;
-				} else if (Keyboard.getEventKey() == Keyboard.KEY_T) {
-						TEXTURES = !TEXTURES;
-						terrain.setUseTextures(TEXTURES);
-				}
+				if(Keyboard.getEventKey() == Keyboard.KEY_F1) {
+					gui.getConsole().toggle();
+				}			
 			}
 		}
 		
 		// Apply gravity
-		if(!flyMode)
-			camera.move(0, Camera.FORWARD, deltaTime * FALSE_GRAVITY_SPEED, doCollisionChecking, flyMode);
+		if(!flymode)
+			camera.move(0, Camera.FORWARD, deltaTime * FALSE_GRAVITY_SPEED, collisionDetection, flymode);
 		
 		if(blockChangeTimer > 0)
 			blockChangeTimer -= deltaTime;	
@@ -327,6 +337,7 @@ public class Game {
 		// Check for mouse clicks
 		boolean destroyBlock = false;
 		boolean placeNewBlock = false;
+		
 		
 		while(Mouse.next()) {
 			if(blockChangeTimer <= 0) {
@@ -372,9 +383,6 @@ public class Game {
 			
 			distance += step;		
 		}
-		
-		// Update gui
-		gui.update();
 	}
 	
 	public FloatBuffer toBuffer(float[] array) {
@@ -388,6 +396,47 @@ public class Game {
 	public static void main(String[] args) {
 		Game cubeGame = new Game();
 		cubeGame.start();
+	}
+
+	@Override
+	public void execute(String[] command) {
+		if(command[0].equals("help")) {
+			gui.getConsole().output("Available commands: flymode, collision_detection, wireframe, textures");
+		} else if(command[0].equals("flymode")) {
+			if(command[1].equals("1")) {
+				flymode = true;
+			} else if(command[1].equals("0")) {
+				flymode = false;
+			} else {
+				gui.getConsole().output("Use as: flymode 1|0");
+			}
+		} else if(command[0].equals("collision_detection")) {
+			if(command[1].equals("1")) {
+				collisionDetection = true;
+			} else if(command[1].equals("0")) {
+				collisionDetection = false;
+			} else {
+				gui.getConsole().output("Use as: collision_detection 1|0");
+			}
+		} else if(command[0].equals("wireframe")) {
+			if(command[1].equals("1")) {
+				wireframe = true;
+			} else if(command[1].equals("0")) {
+				wireframe = false;
+			} else {
+				gui.getConsole().output("Use as: wireframe 1|0");
+			}
+		} else if(command[0].equals("textures")) {
+			if(command[1].equals("1")) {
+				TEXTURES = true;
+				terrain.setUseTextures(TEXTURES);
+			} else if(command[1].equals("0")) {
+				TEXTURES = false;
+				terrain.setUseTextures(TEXTURES);
+			} else {
+				gui.getConsole().output("Use as: textures 1|0");
+			}
+		}
 	}
 }
 
