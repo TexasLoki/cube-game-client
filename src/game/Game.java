@@ -3,26 +3,30 @@ package game;
 import gui.GUI;
 
 import java.nio.FloatBuffer;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.glu.GLU;
 import org.newdawn.slick.opengl.Texture;
 
 import profiling.Profiling;
-import terrain.Terrain;
-import terrain.TerrainCube;
+import terrain.CubeType;
+import terrain.World;
 import types.Vector3;
 import types.Vector3f;
-import types.Vector4f;
 import de.lessvoid.nifty.controls.ConsoleCommands.ConsoleCommand;
 
-public class Game implements ConsoleCommand {
+public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 	
 	private static final float MOUSE_SPEED_SCALE = 0.1f;
 	private static final float MOVEMENT_SPEED = 7.0f;
@@ -39,7 +43,7 @@ public class Game implements ConsoleCommand {
 	
 	// Game components
 	private Camera camera;
-	private Terrain terrain;
+	private World world;
 	private TextureStore textureStore;
 	private boolean running = true;
 	
@@ -59,27 +63,23 @@ public class Game implements ConsoleCommand {
 	// GUI
 	private GUI gui;
 	
+	// Connection
+	private Connection conn;
+	private Queue<String> receivedCommands;
+	
+	private volatile boolean readyToRoll = false;
+	
 	public void start() {
+		receivedCommands = new LinkedList<String>();
+		
 		// Initialize OpenGL and LWJGL stuff
 		init();
 		
 		// Create the texture store
 		textureStore = new TextureStore();
 		crossHairTexture = textureStore.getTexture("res/crosshair.png");
-		
-		// Generate the terrain
-		terrain = new Terrain(new Vector3f(-25.0f, -40.0f, -25.0f), new Vector3(16, 1, 16), new Vector3(16, 50, 16), new Vector3f(1.0f, 1.0f, 1.0f), TEXTURES, textureStore);
-		
-		final int TERRAIN_MIN_HEIGHT = 0;
-		final int TERRAIN_MAX_HEIGHT = 40;
-		final float TERRAIN_GEN_RESOLUTION = 128.0f;
-		final long TERRAIN_GEN_SEED = 2;
-
-		terrain.generateTerrain(TERRAIN_MIN_HEIGHT, TERRAIN_MAX_HEIGHT, TERRAIN_GEN_RESOLUTION,
-								TERRAIN_GEN_SEED);
-		
-		// Create the camera
-		camera = new Camera(new Vector3f(0.0f, 50.0f, 0.0f), new Vector3f(-20.0f, -135.0f, 0.0f), terrain);
+		textureStore.getTexture("res/cube_textures.png");
+		conn = new Connection();
 		
 		// Create the GUI
 		try {
@@ -96,6 +96,16 @@ public class Game implements ConsoleCommand {
 		gui.getConsole().addCommand("textures", this);
 		
 		gui.getConsole().output("To see available commands type 'help'");
+	
+		// Connect
+		try {
+			conn.connect("localhost", 6000);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+		
+		conn.setOnReceiveListener(this);
 		
 		// Main loop
 		long lastFrame = System.currentTimeMillis();
@@ -109,19 +119,17 @@ public class Game implements ConsoleCommand {
 			profiling.frameBegin();
 			
 			// Render
-			render();
+			if(readyToRoll) {
+				render();
 			
-			// Updates the display, also polls the mouse and keyboard
-			Display.update();
-
-			// Update
-			update(deltaTime);	
-			
-			// Tell the profiler we are at the end of a frame
-			profiling.frameEnd();
-
-			// Set the debug info
-			gui.setDebugLabel("x: " + camera.coordinates.x + 
+				// Updates the display, also polls the mouse and keyboard
+				Display.update();
+				
+				// Update
+				update(deltaTime);
+				
+				// Set the debug info
+				gui.setDebugLabel("x: " + camera.coordinates.x + 
 							"\ny: " + camera.coordinates.y + 
 							"\nz: " + camera.coordinates.z +
 							"\nxRot: " + camera.rotation.x + 
@@ -130,15 +138,70 @@ public class Game implements ConsoleCommand {
 							"\ntarget block distance: " + distance +
 							"\nFPS: " + profiling.fps() +
 							"\nvsync: " + VSYNC + 
-							"\nfulscreen: " + FULLSCREEN +
-							"\ntextures: " + TEXTURES + 
-							"\nTERRAIN_MIN_HEIGHT: " + TERRAIN_MIN_HEIGHT +
-							"\nTERRAIN_MAX_HEIGHT: " + TERRAIN_MAX_HEIGHT + 
-							"\nTERRAIN_GEN_RESOLUTION: " + TERRAIN_GEN_RESOLUTION +
-							"\nTERRAIN_GEN_SEED: " + TERRAIN_GEN_SEED + 
-							"\nchunk size (blocks) x=" + terrain.chunkSize.x + " y=" + terrain.chunkSize.y + " z=" + terrain.chunkSize.z +
-							"\nworld size (chunks) x=" + terrain.chunks.x+ " y=" + terrain.chunks.y + " z=" + terrain.chunks.z);
-		
+							"\nfullscreen: " + FULLSCREEN +
+							"\ntextures: " + TEXTURES);
+			}
+			
+			// Handle network messages
+			while(receivedCommands.size() > 0 ) {
+				String line = receivedCommands.remove();
+				StringTokenizer tokenizer = new StringTokenizer(line);
+				
+				// Find the command
+				String command = tokenizer.nextToken();
+				
+				if(command.equals("CUBE")) {
+					Vector3 pos = new Vector3(Integer.valueOf(tokenizer.nextToken()),
+							Integer.valueOf(tokenizer.nextToken()),
+							Integer.valueOf(tokenizer.nextToken()));
+					
+					int iType = Integer.valueOf(tokenizer.nextToken());
+					char type = (char) iType;
+					
+					world.setCube(pos, type);
+				} else if(command.equals("WORLD")) {
+					Vector3 size = new Vector3(Integer.valueOf(tokenizer.nextToken()),
+												Integer.valueOf(tokenizer.nextToken()),
+												Integer.valueOf(tokenizer.nextToken()));
+					
+					char[][][] worldData = new char[size.x][size.y][size.z];
+					
+					for(int x = 0; x < size.x; x++) {
+						for(int y = 0; y < size.y; y++) {
+							for(int z = 0; z < size.z; z++) {
+								int iType = Integer.valueOf(tokenizer.nextToken());
+								worldData[x][y][z] = (char) iType;
+							}
+						}
+					}
+					
+					// Create the world
+					world = new World(textureStore, new Vector3f(1.0f, 1.0f, 1.0f), new Vector3(16, 16, 16));
+					world.fromData(size, worldData);
+					
+					// Create the camera
+					camera = new Camera(new Vector3f(0.0f, 50.0f, 0.0f), new Vector3f(-20.0f, -135.0f, 0.0f), world);
+					
+					readyToRoll = true;
+					
+				} else if(command.equals("CAMERA")) {
+					Vector3 pos = new Vector3(Integer.valueOf(tokenizer.nextToken()),
+							Integer.valueOf(tokenizer.nextToken()),
+							Integer.valueOf(tokenizer.nextToken()));
+					
+					Vector3 rot = new Vector3(Integer.valueOf(tokenizer.nextToken()),
+							Integer.valueOf(tokenizer.nextToken()),
+							Integer.valueOf(tokenizer.nextToken()));
+					
+					camera.coordinates.x = pos.x;
+					camera.coordinates.y = pos.y;
+					camera.coordinates.z = pos.z;
+				}
+			}
+			
+			// Tell the profiler we are at the end of a frame
+			profiling.frameEnd();
+
 			lastFrame = t;
 		}
 		
@@ -244,7 +307,7 @@ public class Game implements ConsoleCommand {
 		camera.applyMatrix();
 		
 		// Render the terrain
-		terrain.render();
+		world.render();
 		
 		opengl2D();
 		GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
@@ -343,9 +406,9 @@ public class Game implements ConsoleCommand {
 		// Find the block the user is looking at
 		float step = 0.01f;
 		
-		float xLook = camera.coordinates.x / terrain.cubeSize.x;
-		float yLook = camera.coordinates.y / terrain.cubeSize.y;
-		float zLook = camera.coordinates.z / terrain.cubeSize.z;
+		float xLook = camera.coordinates.x / 1.0f;
+		float yLook = camera.coordinates.y / 1.0f;
+		float zLook = camera.coordinates.z / 1.0f;
 		
 		float xSpeed = (float) (Math.cos(Math.toRadians(camera.rotation.x)) * -Math.sin(Math.toRadians(camera.rotation.y)) * 1) * step;
 		float ySpeed = (float) (Math.sin(Math.toRadians(camera.rotation.x))) * step;
@@ -364,13 +427,14 @@ public class Game implements ConsoleCommand {
 		
 		distance = 0.0f;
 		while(distance < 20.0f) {
-			if(terrain.solidAt(new Vector3f(xLook, yLook, zLook))) {
+			if(world.solidAt(new Vector3f(xLook, yLook, zLook))) {
 					if(destroyBlock) {
-						terrain.setCube(new Vector3f(xLook, yLook, zLook), null);
+						Vector3 arrayCoords = world.arrayCoordinates(new Vector3f(xLook, yLook, zLook));
+						conn.writeLine("CUBE " + arrayCoords.x + " " + arrayCoords.y + " " + arrayCoords.z + " " + ((int)CubeType.EMPTY));
 						blockChangeTimer = 0.2f;
 					} else if(placeNewBlock) {
-						TerrainCube newCube = new TerrainCube(null, null, new Vector4f(0.3f, 0.3f, 0.3f, 1.0f), terrain.textures, TextureStore.getTexRect(0, 2));
-						terrain.setCube(lastLookPos, newCube);
+						Vector3 arrayCoords = world.arrayCoordinates(lastLookPos);
+						conn.writeLine("CUBE " + arrayCoords.x + " " + arrayCoords.y + " " + arrayCoords.z + " " + ((int)CubeType.DIRT));
 						blockChangeTimer = 0.3f;
 					}
 
@@ -433,14 +497,19 @@ public class Game implements ConsoleCommand {
 		} else if(command[0].equals("textures")) {
 			if(command[1].equals("1")) {
 				TEXTURES = true;
-				terrain.setUseTextures(TEXTURES);
+				world.setDrawTextures(TEXTURES);
 			} else if(command[1].equals("0")) {
 				TEXTURES = false;
-				terrain.setUseTextures(TEXTURES);
+				world.setDrawTextures(TEXTURES);
 			} else {
 				gui.getConsole().output("Use as: textures 1|0");
 			}
 		}
+	}
+
+	@Override
+	public void onReceive(String line) {
+		receivedCommands.add(line);
 	}
 }
 

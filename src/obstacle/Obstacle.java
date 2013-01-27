@@ -1,15 +1,10 @@
 package obstacle;
 
 
-import org.newdawn.slick.opengl.Texture;
-
-import terrain.TerrainCube;
-import terrain.TerrainChunk;
-import types.Vector3;
-import types.Vector3f;
 
 public abstract class Obstacle {
 
+	/*
 	protected TerrainChunk chunk;
 	protected Texture cubeTextures;
 	protected TerrainCube[][][] obstacleArray;
@@ -57,4 +52,5 @@ public abstract class Obstacle {
 
 		return false;
 	}
+	*/
 }

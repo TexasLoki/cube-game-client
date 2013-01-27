@@ -1,15 +1,8 @@
 package obstacle;
 
-import game.TextureStore;
-
-import org.newdawn.slick.opengl.Texture;
-
-import terrain.TerrainCube;
-import terrain.TerrainChunk;
-import types.Vector4f;
 
 public class TreeObstacle extends Obstacle {
-
+/*
 	public TreeObstacle(TerrainChunk chunk, Texture cubeTextures) {
 		super(chunk, cubeTextures);
 	}
@@ -61,5 +54,6 @@ public class TreeObstacle extends Obstacle {
 		}
 		
 	}
+	*/
 	
 }

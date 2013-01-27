@@ -1,7 +1,7 @@
 package game;
 import org.lwjgl.opengl.GL11;
 
-import terrain.Terrain;
+import terrain.World;
 import types.Vector3f;
 
 
@@ -15,12 +15,12 @@ public class Camera {
 	public Vector3f coordinates;
 	public Vector3f rotation;
 	
-	private Terrain terrain;
+	private World world;
 	
-	public Camera(Vector3f coordinates, Vector3f rotation, Terrain terrain) {
+	public Camera(Vector3f coordinates, Vector3f rotation, World world) {
 		this.coordinates = coordinates;
 		this.rotation = rotation;
-		this.terrain = terrain;
+		this.world = world;
 	}
 	
 	public void move(float delta, int direction, float gravityDelta, boolean collisionChecking, boolean flyMode) {
@@ -92,7 +92,7 @@ public class Camera {
 		Vector3f c5 = new Vector3f(x, y, z - cubeSize / 2);
 		Vector3f c6 = new Vector3f(x, y, z + cubeSize / 2);
 		
-		if(!terrain.solidAt(c1) && !terrain.solidAt(c2) && !terrain.solidAt(c3) && !terrain.solidAt(c4) && !terrain.solidAt(c5) && !terrain.solidAt(c6)) {
+		if(!world.solidAt(c1) && !world.solidAt(c2) && !world.solidAt(c3) && !world.solidAt(c4) && !world.solidAt(c5) && !world.solidAt(c6)) {
 			return false;
 		}
 		
