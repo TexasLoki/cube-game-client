@@ -149,6 +149,29 @@ public class World {
 			
 			// Rebuild render data for the chunk
 			chunks[chunkArrayCoords.x][chunkArrayCoords.y][chunkArrayCoords.z].buildRenderData();
+		
+			// Calculate in-chunk coordinates
+			Vector3 chunkPosition = chunks[chunkArrayCoords.x][chunkArrayCoords.y][chunkArrayCoords.z].getPosition();
+			Vector3 inChunkPosition = new Vector3(arrayCoords.x - chunkPosition.x, arrayCoords.y - chunkPosition.y, arrayCoords.z - chunkPosition.z);
+			
+			// Check if any nearby chunk must be rebuilt
+			if(inChunkPosition.x == 0 && chunkArrayCoords.x > 0) {
+				chunks[chunkArrayCoords.x - 1][chunkArrayCoords.y][chunkArrayCoords.z].buildRenderData();
+			} else if(inChunkPosition.x == chunkSize.x - 1 && chunkArrayCoords.x < chunkArraySize.x - 1) {
+				chunks[chunkArrayCoords.x + 1][chunkArrayCoords.y][chunkArrayCoords.z].buildRenderData();
+			}
+			
+			if(inChunkPosition.y == 0 && chunkArrayCoords.y > 0) {
+				chunks[chunkArrayCoords.x][chunkArrayCoords.y - 1][chunkArrayCoords.z].buildRenderData();
+			} else if(inChunkPosition.y == chunkSize.y - 1 && chunkArrayCoords.y < chunkArraySize.y - 1) {
+				chunks[chunkArrayCoords.x][chunkArrayCoords.y + 1][chunkArrayCoords.z].buildRenderData();
+			}
+			
+			if(inChunkPosition.z == 0 && chunkArrayCoords.z > 0) {
+				chunks[chunkArrayCoords.x][chunkArrayCoords.y][chunkArrayCoords.z - 1].buildRenderData();
+			} else if(inChunkPosition.z == chunkSize.z - 1 && chunkArrayCoords.z < chunkArraySize.z - 1) {
+				chunks[chunkArrayCoords.x][chunkArrayCoords.y][chunkArrayCoords.z + 1].buildRenderData();
+			}
 		}
 	}
 	

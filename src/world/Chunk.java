@@ -363,4 +363,8 @@ public class Chunk {
 
 		return null;
 	}
+	
+	public Vector3 getPosition() {
+		return position;
+	}
 }
