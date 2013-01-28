@@ -94,6 +94,7 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		// Add console commands
 		gui.getConsole().addCommand("help", this);
 		gui.getConsole().addCommand("connect", this);
+		gui.getConsole().addCommand("servcmd", this);
 		gui.getConsole().addCommand("flymode", this);
 		gui.getConsole().addCommand("collision_detection", this);
 		gui.getConsole().addCommand("wireframe", this);
@@ -119,7 +120,7 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 	@Override
 	public void execute(String[] command) {
 		if(command[0].equals("help")) {
-			gui.getConsole().output("Available commands: connect, flymode, collision_detection, wireframe, textures");
+			gui.getConsole().output("Available commands: connect, servcmd, flymode, collision_detection, wireframe, textures");
 		} else if(command[0].equals("connect")) {
 			try {
 				conn.connect(command[1], 6000);
@@ -127,6 +128,16 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 			} catch (Exception e) {
 				gui.getConsole().output(e.toString());
 			}
+		} else if(command[0].equals("servcmd")) {
+			String cmd = "";
+			for(int i = 1; i < command.length; i++) {
+				cmd += command[i];
+				
+				if(i != command.length - 1)
+					cmd += ' ';
+			}
+			
+			conn.writeLine("SERVCMD " + cmd);
 		} else if(command[0].equals("flymode")) {
 			if(command[1].equals("1")) {
 				flymode = true;
