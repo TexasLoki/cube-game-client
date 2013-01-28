@@ -1,4 +1,4 @@
-package terrain;
+package world;
 
 import game.Rectf;
 import game.TextureStore;
@@ -74,7 +74,7 @@ public class Chunk {
 					Vector3f pos2 = Vector3f.add(pos1, cubeSize);
 					
 					// Top
-					if((y == size.y - 1) || (cubes[position.x + x][position.y + y + 1][position.z + z] == 0)) {
+					if((position.y + y == worldSize.y - 1) || (cubes[position.x + x][position.y + y + 1][position.z + z] == 0)) {
 						// Vertex data
 						vertexArrays.add(new float[] { pos2.x, pos2.y, pos1.z,
 													pos1.x, pos2.y, pos1.z,
@@ -101,7 +101,7 @@ public class Chunk {
 					}
 					
 					// Bottom
-					if((y == 0) || (cubes[position.x + x][position.y + y - 1][position.z + z] == 0)) {
+					if((position.y + y == 0) || (cubes[position.x + x][position.y + y - 1][position.z + z] == 0)) {
 						// Vertex data
 						vertexArrays.add(new float[] { pos2.x, pos1.y, pos2.z,
 													pos1.x, pos1.y, pos2.z,
@@ -128,7 +128,7 @@ public class Chunk {
 					}
 					
 					// Front
-					if((z == size.z - 1) || (cubes[position.x + x][position.y + y][position.z + z + 1] == 0)) {
+					if((position.z + z == worldSize.z - 1) || (cubes[position.x + x][position.y + y][position.z + z + 1] == 0)) {
 						// Vertex data
 						vertexArrays.add(new float[] { pos2.x, pos2.y, pos2.z,
 													pos1.x, pos2.y, pos2.z,
@@ -155,7 +155,7 @@ public class Chunk {
 					}
 					
 					// Back
-					if((z == 0) || (cubes[position.x + x][position.y + y][position.z + z - 1] == 0)) {
+					if((position.z + z == 0) || (cubes[position.x + x][position.y + y][position.z + z - 1] == 0)) {
 						// Vertex data
 						vertexArrays.add(new float[] { pos1.x, pos2.y, pos1.z,
 													pos2.x, pos2.y, pos1.z,
@@ -182,7 +182,7 @@ public class Chunk {
 					}
 					
 					// Right
-					if((x == size.x - 1) || (cubes[position.x + x + 1][position.y + y][position.z + z] == 0)) {
+					if((position.x + x == worldSize.x - 1) || (cubes[position.x + x + 1][position.y + y][position.z + z] == 0)) {
 						// Vertex data
 						vertexArrays.add(new float[] { pos2.x, pos2.y, pos1.z,
 													pos2.x, pos2.y, pos2.z,
@@ -209,7 +209,7 @@ public class Chunk {
 					}
 					
 					// Left
-					if((x == 0) || (cubes[position.x + x - 1][position.y + y][position.z + z] == 0)) {
+					if((position.x + x == 0) || (cubes[position.x + x - 1][position.y + y][position.z + z] == 0)) {
 						// Vertex data
 						vertexArrays.add(new float[] {pos1.x, pos2.y, pos2.z,
 													pos1.x, pos2.y, pos1.z,

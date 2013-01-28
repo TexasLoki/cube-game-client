@@ -1,4 +1,4 @@
-package terrain;
+package world;
 
 public class CubeType {
 

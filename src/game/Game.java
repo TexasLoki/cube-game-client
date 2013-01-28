@@ -19,10 +19,10 @@ import org.lwjgl.util.glu.GLU;
 import org.newdawn.slick.opengl.Texture;
 
 import profiling.Profiling;
-import terrain.CubeType;
-import terrain.World;
 import types.Vector3;
 import types.Vector3f;
+import world.CubeType;
+import world.World;
 import de.lessvoid.nifty.controls.ConsoleCommands.ConsoleCommand;
 
 public class Game implements ConsoleCommand, Connection.OnReceiveListener {
@@ -99,7 +99,7 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		gui.getConsole().addCommand("wireframe", this);
 		gui.getConsole().addCommand("textures", this);
 		
-		gui.getConsole().output("To see available commands type 'help'");
+		gui.getConsole().output("To see available commands type 'help'\nPress F1 to toggle the console");
 		
 		// Create the connection instance (but don't connect yet)
 		conn = new Connection();
@@ -333,12 +333,15 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 			}
 		}
 		
+		float mouseDX = Mouse.getDX();
+		float mouseDY = Mouse.getDY();
+		
 		// Only let the GUI take keyboard inputs if the console is visible
 		if(gui.getConsole().isVisible) {
 			gui.update();
 		} else if(world != null){
 			// Handle character camera
-			camera.addRotation(new Vector3f(Mouse.getDY() * MOUSE_SPEED, -Mouse.getDX() * MOUSE_SPEED, 0.0f));
+			camera.addRotation(new Vector3f(mouseDY * MOUSE_SPEED, -mouseDX * MOUSE_SPEED, 0.0f));
 	
 			// Handle character movement
 			float movementSpeed = flymode ? MOVEMENT_SPEED_FLYMODE : MOVEMENT_SPEED;

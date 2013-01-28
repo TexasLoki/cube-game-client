@@ -1,9 +1,9 @@
 package game;
 import org.lwjgl.opengl.GL11;
 
-import terrain.World;
 import types.Vector3;
 import types.Vector3f;
+import world.World;
 
 
 public class Camera {
