@@ -87,7 +87,6 @@ public class World {
 	
 	public void render() {
 		if(drawTextures) {
-			// Default material
 			GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.getTextureID());
