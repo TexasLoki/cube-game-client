@@ -2,18 +2,25 @@ package game;
 import org.lwjgl.opengl.GL11;
 
 import terrain.World;
+import types.Vector3;
 import types.Vector3f;
 
 
 public class Camera {
 
+	// Moving directions
 	public static final int FORWARD = 0;
 	public static final int BACKWARD = 1;
 	public static final int RIGHT = 2;
 	public static final int LEFT = 3;
 	
+	// Coordinates and rotation
 	public Vector3f coordinates;
 	public Vector3f rotation;
+	
+	// Target block
+	private Vector3 existingCube;
+	private Vector3 emptyCube;
 	
 	private World world;
 	
@@ -22,6 +29,57 @@ public class Camera {
 		this.rotation = rotation;
 		this.world = world;
 	}
+	
+	// Finds both target cubes
+	public void calculateTargetBlock(float maxDistance, Camera camera, World world) {
+		// Step size (less is more accurate, but slower)
+		float step = 0.01f;
+		
+		// Create a vector keeping track of the position
+		Vector3f testPos = new Vector3f(camera.coordinates.x, camera.coordinates.y, camera.coordinates.z);
+		Vector3f testSpeed = new Vector3f((float) (Math.cos(Math.toRadians(camera.rotation.x)) * -Math.sin(Math.toRadians(camera.rotation.y))) * step,
+										(float) (Math.sin(Math.toRadians(camera.rotation.x))) * step,
+										(float) (Math.cos(Math.toRadians(camera.rotation.x)) * -Math.cos(Math.toRadians(camera.rotation.y))) * step);
+		
+		// Is one step behind of testPos
+		Vector3f lastTestPos = new Vector3f(camera.coordinates.x, camera.coordinates.y, camera.coordinates.z);
+		
+		// Find blocks
+		float distance = 0;
+		
+		while(distance < maxDistance) {
+			// Check if a block was found
+			if(world.solidAt(testPos)) {
+				existingCube = world.arrayCoordinates(testPos);
+				emptyCube = world.arrayCoordinates(lastTestPos);
+
+				return;
+			}
+			
+			// Save the last position
+			lastTestPos.x = testPos.x;
+			lastTestPos.y = testPos.y;
+			lastTestPos.z = testPos.z;
+			
+			// Increase the position
+			testPos.add(testSpeed);
+			
+			// Increase the distance tracking float
+			distance += step;		
+		}
+		
+		existingCube = null;
+		emptyCube = null;
+	}
+	
+	public Vector3 getTargetExistingCube() {
+		return existingCube;
+	}
+	
+	public Vector3 getTargetEmptyCube() {
+		return emptyCube;
+	}
+	
 	
 	public void move(float delta, int direction, float gravityDelta, boolean collisionChecking, boolean flyMode) {
 		Vector3f newCoordinates = new Vector3f(coordinates.x, coordinates.y, coordinates.z);

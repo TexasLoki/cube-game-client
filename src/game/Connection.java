@@ -24,14 +24,15 @@ public class Connection {
 	// OnReceiveListener
 	private OnReceiveListener onReceiveListener = null;
 	
-	// DC or not
-	public volatile boolean isDisconnected = false;
-	
 	public Connection() {
 		sock = new Socket();
 		
 		// TODO: find out if LinkedList is the best to use here
 		writeQueue = new LinkedList<String>();
+	}
+	
+	public boolean isConnected() {
+		return sock.isConnected();
 	}
 	
 	public void setOnReceiveListener(OnReceiveListener onReceiveListener) {
@@ -59,7 +60,6 @@ public class Connection {
 					} catch (IOException e) {
 						System.out.println("Disconnected by server");
 						running = false;
-						isDisconnected = true;
 						stop();
 					}
 				}
@@ -89,12 +89,15 @@ public class Connection {
 		running = false;
 		
 		// Force stop the threads
-		readThread.stop();
-		writeThread.stop();
+		if(readThread.isAlive())
+			readThread.stop();
+		if(writeThread.isAlive())
+			writeThread.stop();
 		
 		// Close the socket
 		try {
-			sock.close();
+			if(sock.isConnected())
+				sock.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
