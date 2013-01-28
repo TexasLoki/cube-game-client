@@ -14,6 +14,8 @@ import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
 public class TextureStore {
+	
+	private static final boolean USE_MIPMAPS = true;
 
 	private Map<String, Texture> textureMap;
 	
@@ -28,7 +30,10 @@ public class TextureStore {
 		} else {
 			try {
 				Texture tex = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream(path));
-				createMipmaps(tex);
+				
+				if(USE_MIPMAPS)
+					createMipmaps(tex);
+				
 				textureMap.put(path, tex);
 				return tex;
 			} catch (IOException e) {
