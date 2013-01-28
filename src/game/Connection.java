@@ -89,9 +89,9 @@ public class Connection {
 		running = false;
 		
 		// Force stop the threads
-		if(readThread.isAlive())
+		if(readThread != null && readThread.isAlive())
 			readThread.stop();
-		if(writeThread.isAlive())
+		if(writeThread != null && writeThread.isAlive())
 			writeThread.stop();
 		
 		// Close the socket
