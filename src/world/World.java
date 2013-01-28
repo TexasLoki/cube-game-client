@@ -36,6 +36,15 @@ public class World {
 	
 	public void setDrawTextures(boolean drawTextures) {
 		this.drawTextures = drawTextures;
+		
+		for(int x = 0; x < chunkArraySize.x; x++) {
+			for(int y = 0; y < chunkArraySize.y; y++) {
+				for(int z = 0; z < chunkArraySize.z; z++) {
+						chunks[x][y][z].setDrawTextures(drawTextures);
+						chunks[x][y][z].buildRenderData();
+					}
+			}
+		}
 	}
 	
 	public void fromData(Vector3 size, char[][][] data) {
@@ -78,6 +87,7 @@ public class World {
 	
 	public void render() {
 		if(drawTextures) {
+			// Default material
 			GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, textures.getTextureID());
