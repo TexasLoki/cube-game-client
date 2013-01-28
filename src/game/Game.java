@@ -473,6 +473,8 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 				camera.rotation.x = rot.x;
 				camera.rotation.y = rot.y;
 				camera.rotation.z = rot.z;
+			} else if(command.equals("CONSOLEMSG")) {
+				gui.getConsole().output("SERVER: " + line.substring(line.indexOf(' ') + 1, line.length()));
 			}
 		}
 	}
