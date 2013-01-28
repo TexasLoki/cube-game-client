@@ -27,6 +27,8 @@ import de.lessvoid.nifty.controls.ConsoleCommands.ConsoleCommand;
 
 public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 	
+	private static final float ZNEAR = 0.1f;
+	private static final float ZFAR = 300.0f;
 	private static final float MOUSE_SPEED = 0.1f;
 	private static final float MOVEMENT_SPEED = 7.0f;
 	private static final float MOVEMENT_SPEED_FLYMODE = 12.0f;
@@ -236,7 +238,7 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		
-		GLU.gluPerspective(45.0f, (float)dispMode.getWidth() / (float)dispMode.getHeight(), 1.000000f, 300.0f);
+		GLU.gluPerspective(45.0f, (float)dispMode.getWidth() / (float)dispMode.getHeight(), ZNEAR, ZFAR);
 		
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
@@ -314,7 +316,7 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		
-		GLU.gluPerspective(45.0f, (float)dispMode.getWidth() / (float)dispMode.getHeight(), 0.1f, 300.0f);
+		GLU.gluPerspective(45.0f, (float)dispMode.getWidth() / (float)dispMode.getHeight(), ZNEAR, ZFAR);
 		
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glLoadIdentity();
