@@ -16,7 +16,6 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 import org.lwjgl.util.glu.GLU;
-import org.newdawn.slick.opengl.Texture;
 
 import profiling.Profiling;
 import types.Vector3;
