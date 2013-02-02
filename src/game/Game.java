@@ -3,7 +3,10 @@ package game;
 import gui.GUI;
 
 import java.nio.FloatBuffer;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
@@ -62,6 +65,10 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 	
 	// Block change timer
 	private float blockChangeTimer = BLOCK_CHANGE_RATE;
+	
+	// Players
+	private int id = -1;
+	private Map<Integer, Player> playerMap;
 
 	public static void main(String[] args) {
 		Game cubeGame = new Game();
@@ -109,6 +116,9 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		
 		// Show the console
 		gui.getConsole().toggle();
+		
+		// Create the player map
+		playerMap = new HashMap<Integer, Player>();
 		
 		// Enter the main loop
 		loop();
@@ -278,6 +288,27 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		if(camera != null)
 			camera.applyMatrix();
 		
+		// Render players
+		for(Entry<Integer, Player> e : playerMap.entrySet()) {
+			Player p = e.getValue();
+			
+			GL11.glColor3f(1.0f, 0.0f, 0.0f);
+			
+			GL11.glBegin(GL11.GL_QUADS);
+			
+			GL11.glVertex3f(p.coordinates.x + 0.5f, p.coordinates.y, p.coordinates.z - 0.5f);
+			GL11.glVertex3f(p.coordinates.x - 0.5f, p.coordinates.y, p.coordinates.z - 0.5f);
+			GL11.glVertex3f(p.coordinates.x - 0.5f, p.coordinates.y, p.coordinates.z + 0.5f);
+			GL11.glVertex3f(p.coordinates.x + 0.5f, p.coordinates.y, p.coordinates.z + 0.5f);
+			
+			GL11.glVertex3f(p.coordinates.x - 0.5f, p.coordinates.y, p.coordinates.z + 0.5f);
+			GL11.glVertex3f(p.coordinates.x + 0.5f, p.coordinates.y, p.coordinates.z + 0.5f);
+			GL11.glVertex3f(p.coordinates.x + 0.5f, p.coordinates.y, p.coordinates.z - 0.5f);
+			GL11.glVertex3f(p.coordinates.x - 0.5f, p.coordinates.y, p.coordinates.z - 0.5f);
+			
+			GL11.glEnd();
+		}
+		
 		// Render the world
 		if(world != null)
 			world.render();
@@ -371,6 +402,9 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 			if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 				camera.move(0, Camera.RIGHT, GRAVITY_SPEED * 2 * deltaTime, collisionDetection, flymode);
 			
+			conn.writeLine("POS " + camera.coordinates.x + " " + camera.coordinates.y + " " + camera.coordinates.z +
+		" " + camera.rotation.x + " " + camera.rotation.y + " " + camera.rotation.z);
+			
 			// Mouse variables
 			boolean destroyBlock = false;
 			boolean placeNewBlock = false;
@@ -458,22 +492,38 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 				
 				// Create the camera
 				camera = new Camera(new Vector3f(0.0f, 50.0f, 0.0f), new Vector3f(-20.0f, -135.0f, 0.0f), world);
-			} else if(command.equals("CAMERA")) {
-				Vector3 pos = new Vector3(Integer.valueOf(tokenizer.nextToken()),
-						Integer.valueOf(tokenizer.nextToken()),
-						Integer.valueOf(tokenizer.nextToken()));
+			} else if(command.equals("ID")) { 
+				id = Integer.valueOf(tokenizer.nextToken());
+			} else if(command.equals("POS")) {
+				int clientID = Integer.valueOf(tokenizer.nextToken());
 				
-				Vector3 rot = new Vector3(Integer.valueOf(tokenizer.nextToken()),
-						Integer.valueOf(tokenizer.nextToken()),
-						Integer.valueOf(tokenizer.nextToken()));
+				Vector3f pos = new Vector3f(Float.valueOf(tokenizer.nextToken()),
+						Float.valueOf(tokenizer.nextToken()),
+						Float.valueOf(tokenizer.nextToken()));
 				
-				camera.coordinates.x = pos.x;
-				camera.coordinates.y = pos.y;
-				camera.coordinates.z = pos.z;
+				Vector3f rot = new Vector3f(Float.valueOf(tokenizer.nextToken()),
+						Float.valueOf(tokenizer.nextToken()),
+						Float.valueOf(tokenizer.nextToken()));
 				
-				camera.rotation.x = rot.x;
-				camera.rotation.y = rot.y;
-				camera.rotation.z = rot.z;
+				if(clientID == id) {
+					camera.coordinates = pos;
+					camera.rotation = rot;
+				} else {
+					if(playerMap.containsKey(id)) {
+						Player p = playerMap.get(id);
+						p.coordinates = pos;
+						p.rotation = rot;
+					} else {
+						Player p = new Player();
+						p.coordinates = pos;
+						p.rotation = rot;
+						
+						playerMap.put(clientID, p);
+					}
+				}
+			} else if(command.equals("REM")) {
+				int clientID = Integer.valueOf(tokenizer.nextToken());
+				playerMap.remove(clientID);
 			} else if(command.equals("CONSOLEMSG")) {
 				gui.getConsole().output("SERVER: " + line.substring(line.indexOf(' ') + 1, line.length()));
 			}
