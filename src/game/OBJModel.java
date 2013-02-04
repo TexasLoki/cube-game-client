@@ -113,7 +113,7 @@ public class OBJModel {
 		GL11.glPushMatrix();
 		
 		// Set the translation
-		GL11.glTranslatef(translation.x, translation.y, translation.z);
+		GL11.glTranslatef(translation.x, translation.y, translation.z);	
 		
 		// Set the rotation
 		GL11.glRotatef(rotation.x, 1.0f, 0.0f, 0.0f);

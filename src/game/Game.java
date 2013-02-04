@@ -2,6 +2,9 @@ package game;
 
 import gui.GUI;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,6 +15,8 @@ import java.util.StringTokenizer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Controller;
+import org.lwjgl.input.Controllers;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -32,6 +37,7 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 	private static final float ZNEAR = 0.1f;
 	private static final float ZFAR = 300.0f;
 	private static final float MOUSE_SPEED = 0.1f;
+	private static final float GAMEPAD_SPEED = 1.0f;
 	private static final float MOVEMENT_SPEED = 7.0f;
 	private static final float MOVEMENT_SPEED_FLYMODE = 12.0f;
 	private static final float GRAVITY_SPEED = 8.0f;
@@ -69,6 +75,10 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 	// Players
 	private int id = -1;
 	private Map<Integer, Player> playerMap;
+	private OBJModel playerModel;
+	private float posUpdateTimer = 0.1f;
+	
+	private String extraDebug = "";
 
 	public static void main(String[] args) {
 		Game cubeGame = new Game();
@@ -119,6 +129,25 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		
 		// Create the player map
 		playerMap = new HashMap<Integer, Player>();
+		playerModel = new OBJModel();
+		try {
+			playerModel.loadModel(new FileInputStream(new File("res/GameChar.obj")));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		// Gamepad
+		try {
+			Controllers.create();
+		} catch (LWJGLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		// Enter the main loop
 		loop();
@@ -223,6 +252,7 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 								"\nzRot: " + camera.rotation.z;
 			}
 			
+			debugString += extraDebug;
 			debugString += "\n\nPress F1 to toggle console";
 			
 			gui.setDebugLabel(debugString);
@@ -291,22 +321,12 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		// Render players
 		for(Entry<Integer, Player> e : playerMap.entrySet()) {
 			Player p = e.getValue();
+			Vector3f rot = new Vector3f(p.rotation.x, p.rotation.y, p.rotation.z);
+			rot.y = -rot.y;
+			rot.x = -rot.x;
 			
-			GL11.glColor3f(1.0f, 0.0f, 0.0f);
-			
-			GL11.glBegin(GL11.GL_QUADS);
-			
-			GL11.glVertex3f(p.coordinates.x + 0.5f, p.coordinates.y, p.coordinates.z - 0.5f);
-			GL11.glVertex3f(p.coordinates.x - 0.5f, p.coordinates.y, p.coordinates.z - 0.5f);
-			GL11.glVertex3f(p.coordinates.x - 0.5f, p.coordinates.y, p.coordinates.z + 0.5f);
-			GL11.glVertex3f(p.coordinates.x + 0.5f, p.coordinates.y, p.coordinates.z + 0.5f);
-			
-			GL11.glVertex3f(p.coordinates.x - 0.5f, p.coordinates.y, p.coordinates.z + 0.5f);
-			GL11.glVertex3f(p.coordinates.x + 0.5f, p.coordinates.y, p.coordinates.z + 0.5f);
-			GL11.glVertex3f(p.coordinates.x + 0.5f, p.coordinates.y, p.coordinates.z - 0.5f);
-			GL11.glVertex3f(p.coordinates.x - 0.5f, p.coordinates.y, p.coordinates.z - 0.5f);
-			
-			GL11.glEnd();
+			System.out.println(p.rotation.x + " " + p.rotation.y + " " + p.rotation.z);
+			playerModel.render(p.coordinates, rot, new Vector3f(1.0f, 1.0f, 1.0f));
 		}
 		
 		// Render the world
@@ -358,6 +378,8 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 	}
 	
 	public void update(float deltaTime) {
+		extraDebug = "";
+		
 		// Quit?
 		if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
 			running = false;
@@ -383,10 +405,13 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		if(gui.getConsole().isVisible) {
 			gui.update();
 		} else if(world != null){
-			// Handle character camera
+			boolean destroyBlock = false;
+			boolean placeNewBlock = false;
+			
+			// Mouse camera
 			camera.addRotation(new Vector3f(mouseDY * MOUSE_SPEED, -mouseDX * MOUSE_SPEED, 0.0f));
 	
-			// Handle character movement
+			// Keyboard movement
 			float movementSpeed = flymode ? MOVEMENT_SPEED_FLYMODE : MOVEMENT_SPEED;
 			
 			if(Keyboard.isKeyDown(Keyboard.KEY_W))
@@ -402,41 +427,83 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 			if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 				camera.move(0, Camera.RIGHT, GRAVITY_SPEED * 2 * deltaTime, collisionDetection, flymode);
 			
-			conn.writeLine("POS " + camera.coordinates.x + " " + camera.coordinates.y + " " + camera.coordinates.z +
-		" " + camera.rotation.x + " " + camera.rotation.y + " " + camera.rotation.z);
+			// Gamepad
+			for(int i = 0; i < Controllers.getControllerCount(); i++) {
+				Controller contr = Controllers.getController(i);
+
+			    if(contr.getIndex() == 4) {
+			    	float yAxisValue = contr.getYAxisValue();
+			    	float xAxisValue = contr.getXAxisValue();
+			    	
+			    	// Movement
+					if(yAxisValue < 0)
+						camera.move(movementSpeed * deltaTime * -yAxisValue, Camera.FORWARD, 0, collisionDetection, flymode);
+					if(yAxisValue > 0)
+						camera.move(movementSpeed * deltaTime * yAxisValue, Camera.BACKWARD, 0, collisionDetection, flymode);
+					if(xAxisValue < 0)
+						camera.move(movementSpeed * deltaTime * -xAxisValue, Camera.LEFT, 0, collisionDetection, flymode);
+					if(xAxisValue > 0)
+						camera.move(movementSpeed * deltaTime * xAxisValue, Camera.RIGHT, 0, collisionDetection, flymode);
+					
+			    	// Camera
+					float camDX = 0;
+					float camDY = 0;
+					
+					for(int a = 0; a < contr.getAxisCount(); a++) {
+						if(contr.getAxisName(a).equals("Extra")) {
+							camDX = contr.getAxisValue(a);
+						} else if(contr.getAxisName(a).equals("Rudder")) {
+							camDY = contr.getAxisValue(a);
+						}
+					}
+					
+					camera.addRotation(new Vector3f(-camDX * GAMEPAD_SPEED, -camDY * GAMEPAD_SPEED, 0.0f));
+					
+					// Buttons
+					for(int b = 0; b < contr.getButtonCount(); b++) {
+						if(contr.getButtonName(b).equals("Right Trigger")) {
+							if(contr.isButtonPressed(b))
+								destroyBlock = true;
+						} else if(contr.getButtonName(b).equals("Left Trigger")) {
+							if(contr.isButtonPressed(b))
+								placeNewBlock = true;
+						}
+					}
+			    }
+			}
 			
-			// Mouse variables
-			boolean destroyBlock = false;
-			boolean placeNewBlock = false;
+			posUpdateTimer -= deltaTime;
+			
+			if(posUpdateTimer <= 0) {
+				conn.writeLine("POS " + camera.coordinates.x + " " + camera.coordinates.y + " " + camera.coordinates.z +
+						" " + camera.rotation.x + " " + camera.rotation.y + " " + camera.rotation.z);
+				posUpdateTimer = 0.1f;
+			}
 			
 			// Check mouse presses
 			while(Mouse.next()) {
-				if(blockChangeTimer <= 0) {
-						if(Mouse.getEventButton() == 0) {
-							destroyBlock = true;
-						} else if(Mouse.getEventButton() == 1) {
-							placeNewBlock = true;
-						}
+				if(Mouse.getEventButton() == 0) {
+					destroyBlock = true;
+				} else if(Mouse.getEventButton() == 1) {
+					placeNewBlock = true;
 				}
 			}
 			
-			if(blockChangeTimer <= 0) {
-				if(Mouse.isButtonDown(0)) {
-					destroyBlock = true;
-				} else if(Mouse.isButtonDown(1)) {
-					placeNewBlock = true;
-				}
+			if(Mouse.isButtonDown(0)) {
+				destroyBlock = true;
+			} else if(Mouse.isButtonDown(1)) {
+				placeNewBlock = true;
 			}
 			
 			// Calculate target block
 			camera.calculateTargetBlock(20.0f, camera, world);
 			
 			// Place or destroy block if mouse was pressed
-			if(destroyBlock && camera.getTargetExistingCube() != null) {
+			if(blockChangeTimer <= 0 && destroyBlock && camera.getTargetExistingCube() != null) {
 				Vector3 arrayCoords = camera.getTargetExistingCube();
 				conn.writeLine("CUBE " + arrayCoords.x + " " + arrayCoords.y + " " + arrayCoords.z + " " + ((int)CubeType.EMPTY));
 				blockChangeTimer = BLOCK_CHANGE_RATE;
-			} else if(placeNewBlock && camera.getTargetEmptyCube() != null) {
+			} else if(blockChangeTimer <= 0 && placeNewBlock && camera.getTargetEmptyCube() != null) {
 				Vector3 arrayCoords = camera.getTargetEmptyCube();
 				conn.writeLine("CUBE " + arrayCoords.x + " " + arrayCoords.y + " " + arrayCoords.z + " " + ((int)CubeType.DIRT));
 				blockChangeTimer = BLOCK_CHANGE_RATE;
@@ -509,8 +576,8 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 					camera.coordinates = pos;
 					camera.rotation = rot;
 				} else {
-					if(playerMap.containsKey(id)) {
-						Player p = playerMap.get(id);
+					if(playerMap.containsKey(clientID)) {
+						Player p = playerMap.get(clientID);
 						p.coordinates = pos;
 						p.rotation = rot;
 					} else {
@@ -523,7 +590,8 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 				}
 			} else if(command.equals("REM")) {
 				int clientID = Integer.valueOf(tokenizer.nextToken());
-				playerMap.remove(clientID);
+				if(playerMap.containsKey(clientID))
+					playerMap.remove(clientID);
 			} else if(command.equals("CONSOLEMSG")) {
 				gui.getConsole().output("SERVER: " + line.substring(line.indexOf(' ') + 1, line.length()));
 			}
