@@ -140,7 +140,6 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 			e.printStackTrace();
 		}
 		
-		
 		// Gamepad
 		try {
 			Controllers.create();
