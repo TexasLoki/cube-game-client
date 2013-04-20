@@ -22,6 +22,11 @@ public class Camera {
 	private Vector3 existingCube;
 	private Vector3 emptyCube;
 	
+	// Gravity
+	private boolean inAir = false;
+	private float gravitySpeed = 0.0f;
+	private float gravityAcceleration = -9.8f;
+	
 	private World world;
 	
 	public Camera(Vector3f coordinates, Vector3f rotation, World world) {
@@ -155,6 +160,25 @@ public class Camera {
 		}
 		
 		return true;
+	}
+	
+	public void jump() {
+		if(!inAir)
+			gravitySpeed += 10.0f;
+	}
+	
+	public void applyGravity(float deltaTime) {
+		gravitySpeed += gravityAcceleration * deltaTime;
+		
+		float newYCoordinates = coordinates.y + gravitySpeed * deltaTime;
+		
+		if(!collision(coordinates.x, newYCoordinates, coordinates.z)) {
+			coordinates.y = newYCoordinates;
+			inAir = true;
+		} else {
+			inAir = false;
+			gravitySpeed = 0.0f;
+		}
 	}
 	
 	/* Use this when adding rotation instead of Vector3f.add since this function makes the numbers stay under 360. */

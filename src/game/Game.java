@@ -422,8 +422,12 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 				camera.move(movementSpeed * deltaTime, Camera.LEFT, 0, collisionDetection, flymode);
 			if(Keyboard.isKeyDown(Keyboard.KEY_D))
 				camera.move(movementSpeed * deltaTime, Camera.RIGHT, 0, collisionDetection, flymode);
-			if(Keyboard.isKeyDown(Keyboard.KEY_SPACE))
-				camera.move(0, Camera.RIGHT, -GRAVITY_SPEED * 2 * deltaTime, collisionDetection, flymode);
+			if(Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
+				if(flymode)
+					camera.move(0, Camera.RIGHT, -GRAVITY_SPEED * 2 * deltaTime, collisionDetection, flymode);
+				else
+					camera.jump();
+			}
 			if(Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
 				camera.move(0, Camera.RIGHT, GRAVITY_SPEED * 2 * deltaTime, collisionDetection, flymode);
 			
@@ -512,7 +516,8 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		
 		// Apply gravity
 		if(!flymode)
-			camera.move(0, Camera.FORWARD, deltaTime * GRAVITY_SPEED, collisionDetection, flymode);
+			camera.applyGravity(deltaTime);
+			//camera.move(0, Camera.FORWARD, deltaTime * GRAVITY_SPEED, collisionDetection, flymode);
 		
 		// Update the block change timer
 		if(blockChangeTimer > 0)
