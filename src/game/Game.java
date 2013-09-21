@@ -79,6 +79,9 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 	private float posUpdateTimer = 0.1f;
 	
 	private String extraDebug = "";
+	
+	// Fog
+	private FloatBuffer fogColorBuffer;
 
 	public static void main(String[] args) {
 		Game cubeGame = new Game();
@@ -265,10 +268,14 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		Mouse.setGrabbed(true);
 		
 		// Get the desktop display mode
-		dispMode = Display.getDesktopDisplayMode();
+		//dispMode = Display.getDesktopDisplayMode();
 
 		// Set the display mode for the application (fullscreen for now)
-		Display.setDisplayModeAndFullscreen(dispMode);
+		//Display.setDisplayModeAndFullscreen(dispMode);
+		
+		dispMode = new DisplayMode(1400, 1000);
+		Display.setDisplayMode(dispMode);
+		
 		Display.setVSyncEnabled(true);
 		Display.create(new PixelFormat().withDepthBits(24).withSamples(4).withSRGB(true));
 		
@@ -285,15 +292,22 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glEnable(GL11.GL_LIGHTING);
+		GL11.glEnable(GL11.GL_FOG);
 		GL11.glShadeModel(GL11.GL_SMOOTH); 
 		GL11.glBlendFunc (GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glEnable(GL11.GL_BLEND);
 		
 		// Create the ambient light
-		float ambientLightArray[] = new float[] { 0.2f, 0.2f, 0.2f, 1.0f };
+		float ambientLightArray[] = new float[] { 0.4f, 0.4f, 0.4f, 1.0f };
 		FloatBuffer ambientLight = BufferUtils.createFloatBuffer(4);
 		ambientLight.put(ambientLightArray);
 		ambientLight.position(0);
+		
+		// Create the fog
+		float fogColorArray[] = new float[] { 0.4f, 0.4f, 0.4f, 1.0f };
+		fogColorBuffer = BufferUtils.createFloatBuffer(4);
+		fogColorBuffer.put(fogColorArray);
+		fogColorBuffer.position(0);
 		
 		GL11.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT, ambientLight);
 		GL11.glEnable(GL11.GL_LIGHT0);
@@ -301,7 +315,7 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 	
 	public void render() {
 		// Clear the screen
-		GL11.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		GL11.glClearColor(0.5f, 0.7f, 0.9f, 1.0f);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		GL11.glLoadIdentity();
 		
@@ -332,6 +346,15 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 		// Render the world
 		if(world != null)
 			world.render();
+		
+		// Fog
+		GL11.glHint(GL11.GL_FOG_HINT, GL11.GL_NICEST);
+		
+		GL11.glFog(GL11.GL_FOG_COLOR, fogColorBuffer);
+		GL11.glFogi(GL11.GL_FOG_MODE, GL11.GL_LINEAR);
+		GL11.glFogf(GL11.GL_FOG_DENSITY, 0.05f);
+		GL11.glFogf(GL11.GL_FOG_START, 100.0f);
+		GL11.glFogf(GL11.GL_FOG_END, 130.0f);
 		
 		opengl2D();
 		GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
@@ -546,6 +569,8 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 				Vector3 size = new Vector3(Integer.valueOf(tokenizer.nextToken()),
 											Integer.valueOf(tokenizer.nextToken()),
 											Integer.valueOf(tokenizer.nextToken()));
+				
+				gui.getConsole().output("Received world data from server, size: " + size.x + "*" + size.y + "*" + size.z);
 				
 				char[][][] worldData = new char[size.x][size.y][size.z];
 				

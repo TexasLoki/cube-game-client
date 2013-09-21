@@ -15,7 +15,7 @@ import org.newdawn.slick.util.ResourceLoader;
 
 public class TextureStore {
 	
-	private static final boolean USE_MIPMAPS = false;
+	private static final boolean USE_MIPMAPS = true;
 
 	private Map<String, Texture> textureMap;
 	
