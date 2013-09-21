@@ -312,7 +312,8 @@ public class Game implements ConsoleCommand, Connection.OnReceiveListener {
 			GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
 		else 
 			GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
-
+	
+		
 		// Apply the camera matrix
 		if(camera != null)
 			camera.applyMatrix();
